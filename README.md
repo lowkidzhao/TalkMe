@@ -29,7 +29,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/your-repo/talk_me.git
+git clone https://github.com/lowkidzhao/talk_me.git
 
 # 安装依赖
 cd talk_me && pnpm install
