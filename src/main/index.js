@@ -1,9 +1,10 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, desktopCapturer } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { Server } from 'socket.io'
-import logger from './logger'
+import logger from '../log/logger'
+import { initialization } from '../e-wrtc/main'
 
 function createWindow() {
   // Create the browser window.
@@ -81,7 +82,13 @@ const io = new Server(3000, {
     methods: ['GET', 'POST', 'PUT'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
-  }
+  },
+  // 新增性能优化配置
+  transports: ['websocket'], // 强制使用WebSocket传输
+  allowEIO3: true, // 兼容旧版客户端
+  pingTimeout: 50000, // 保持长连接
+  pingInterval: 15000, // 减少心跳频率
+  maxHttpBufferSize: 1e8 // 增大缓冲区适应音频流
 })
 
 io.on('connection', (socket) => {
@@ -93,3 +100,7 @@ io.on('connection', (socket) => {
     io.emit('user-count', io.engine.clientsCount)
   })
 })
+
+//测试
+const stream = desktopCapturer.getSources({ types: ['window', 'screen'] })
+initialization('stun', stream)

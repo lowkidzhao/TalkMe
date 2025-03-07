@@ -10,7 +10,7 @@ export default winston.createLogger({
     new transports.DailyRotateFile({
       level: 'debug',
       dirname: '.logs',
-      filename: 'application-%DATE%.log',
+      filename: 'TallMe-%DATE%.log',
       datePattern: 'YYYY-MM-DD',
       maxSize: 1024
     })

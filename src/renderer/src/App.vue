@@ -4,7 +4,14 @@ import { io } from 'socket.io-client'
 
 const usercount = ref(0)
 
-const user01 = io('http://localhost:3000')
+const user01 = io('http://localhost:3000', {
+  transports: ['websocket'],
+  autoConnect: true,
+  reconnection: true,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+  reconnectionAttempts: Infinity
+})
 
 user01.on('connect', () => {
   console.log('连接成功')
