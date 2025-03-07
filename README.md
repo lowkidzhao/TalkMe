@@ -23,7 +23,7 @@
 
 - Node.js 18+
 - pnpm 8+
-- Python 3.10+ (仅 Windows 原生模块编译需要)
+- python 3.11+
 
 ### 安装
 
@@ -39,6 +39,7 @@ cd talk_me && pnpm install
 ### Development
 
 ```bash
+# 启动应用
 $ pnpm dev
 ```
 
@@ -53,4 +54,20 @@ $ pnpm build:mac
 
 # For Linux
 $ pnpm build:linux
+```
+
+### 日志等级对照表
+
+- silly: 调试细节
+- debug: 开发调试信息
+- verbose: 详细运行信息
+- info: 常规信息 (默认生产环境级别)
+- http: HTTP 请求日志
+- warn: 警告信息
+- error: 可恢复的错误
+
+```bash
+使用socket.io进行通信
+使用winston进行日志记录
+使用wrtc进行音视频通信
 ```
