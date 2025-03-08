@@ -7,43 +7,58 @@ import logger from '../log/logger'
  * @returns {服务器实例}
  */
 export function createServer(port) {
-  const io = new Server(port, {
-    cors: {
-      origin: 'http://localhost:5173', // 必须与渲染进程源完全一致
-      methods: ['GET', 'POST', 'PUT'],
-      allowedHeaders: ['Content-Type', 'Authorization'],
-      credentials: true
-    },
-    // 新增性能优化配置
-    transports: ['websocket'], // 强制使用WebSocket传输
-    allowEIO3: true, // 兼容旧版客户端
-    pingTimeout: 50000, // 保持长连接
-    pingInterval: 15000, // 减少心跳频率
-    maxHttpBufferSize: 1e8 // 增大缓冲区适应音频流
-  })
-  // 在io实例创建后添加
-  io.on('listening', () => {
-    logger.info(`Socket.IO服务已启动在端口:${io.httpServer.address().port}`)
-  })
+  try {
+    // 创建时不要立即绑定端口
+    const io = new Server({
+      cors: {
+        origin: 'http://localhost:5173',
+        methods: ['GET', 'POST', 'PUT'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        credentials: true
+      },
+      transports: ['websocket'],
+      allowEIO3: true,
+      pingTimeout: 50000,
+      pingInterval: 15000,
+      maxHttpBufferSize: 1e8
+    })
 
-  io.on('error', (err) => {
+    // 显式创建HTTP服务器
+    io.listen(port)
+
+    // 监听底层HTTP服务器事件
+    io.httpServer.on('listening', () => {
+      logger.info(`服务已启动在端口:${io.httpServer.address().port}`)
+    })
+
+    io.on('error', (err) => {
+      logger.error('Socket.IO服务启动失败:', err)
+    })
+    return io
+  } catch (err) {
     logger.error('Socket.IO服务启动失败:', err)
-  })
-  return io
+  }
 }
 
 /**
- * 获取用户数量
+ * 载入监听服务
  * @param {服务器实例} io
  */
-export function getServer(io) {
-  io.on('connection', (socket) => {
-    logger.info('a user connected__' + socket.id)
+export function Start(io, type) {
+  try {
+    io.on('connection', (socket) => {
+      logger.info('a user connected__' + socket.id)
 
-    socket.on('getCounter', () => {
-      console.log('getCounter')
-
-      io.emit('user-count', io.engine.clientsCount)
+      socket.on('getCounter', () => {
+        logger.info('getCounter')
+        io.emit('user-count', io.engine.clientsCount)
+      })
+      socket.on('webrtc-offer', (data) => {
+        // 添加type标识转发到对应终端
+        io.emit('webrtc-offer', { ...data, origin: type })
+      })
     })
-  })
+  } catch (err) {
+    logger.error('Socket.IO服务启动出错:', err)
+  }
 }

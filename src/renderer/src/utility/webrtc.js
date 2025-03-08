@@ -1,11 +1,10 @@
-import config from '../../../TM_config.json'
+import config from '../../../config/TM_config.json'
 /**
  *  初始化
  * @param {网络类型} type
  */
 export function initialization(type) {
   const pc = new RTCPeerConnection(iceServers(config, type))
-  console.log(pc)
   return pc
 }
 /**
@@ -41,9 +40,21 @@ function iceServers(config, type) {
  * @param {实例} pc
  * @returns 字符串
  */
-export function GetState(pc) {
-  return pc.connectionState
+export async function GetState(pc) {
+  let connectionInfo = {
+    state: pc.connectionState,
+    remoteIP: '',
+    localIP: '',
+    protocol: ''
+  }
+  // 添加状态转换逻辑
+  if (pc.iceConnectionState) {
+    connectionInfo.state = pc.iceConnectionState
+  }
+
+  return connectionInfo
 }
+
 // new
 // 表示至少有一个 ICE 连接（RTCIceTransport 或 RTCDtlsTransport 对象）处于 new 状态，并且没有连接处于以下状态： connecting、checking、failed、disconnected，或者这些连接都处于 closed 状态。
 

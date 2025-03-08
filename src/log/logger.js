@@ -12,7 +12,7 @@ export default winston.createLogger({
       dirname: '.logs',
       filename: 'TallMe-%DATE%.log',
       datePattern: 'YYYY-MM-DD',
-      maxSize: 1024
+      maxSize: 2048
     })
   ]
 })
