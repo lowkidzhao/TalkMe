@@ -23,7 +23,6 @@
 
 - Node.js 18+
 - pnpm 8+
-- python 3.11+
 
 ### 安装
 
@@ -69,5 +68,4 @@ $ pnpm build:linux
 ```bash
 使用socket.io进行通信
 使用winston进行日志记录
-使用wrtc进行音视频通信
 ```

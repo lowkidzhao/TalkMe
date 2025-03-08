@@ -1,16 +1,15 @@
-import { app, shell, BrowserWindow, ipcMain, desktopCapturer } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, desktopCapturer, session } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import { Server } from 'socket.io'
 import logger from '../log/logger'
-import { initialization } from '../e-wrtc/main'
+import { createServer, getServer } from '../m-socket/sever'
 
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1280,
+    height: 720,
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -58,6 +57,25 @@ app.whenReady().then(() => {
   createWindow()
   logger.info('app strart')
 
+  // 媒体请求处理器
+  session.defaultSession.setDisplayMediaRequestHandler(async (request, callback) => {
+    try {
+      const sources = await desktopCapturer.getSources({ types: ['screen'] })
+
+      // 添加音频设备支持
+      callback({
+        video: sources[0],
+        audio: 'loopback'
+      })
+    } catch (error) {
+      logger.error('屏幕捕获失败:', error)
+      callback({
+        video: false,
+        audio: false // 添加音频失败状态
+      })
+    }
+  })
+
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
@@ -76,31 +94,6 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-const io = new Server(3000, {
-  cors: {
-    origin: 'http://localhost:5173', // 必须与渲染进程源完全一致
-    methods: ['GET', 'POST', 'PUT'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true
-  },
-  // 新增性能优化配置
-  transports: ['websocket'], // 强制使用WebSocket传输
-  allowEIO3: true, // 兼容旧版客户端
-  pingTimeout: 50000, // 保持长连接
-  pingInterval: 15000, // 减少心跳频率
-  maxHttpBufferSize: 1e8 // 增大缓冲区适应音频流
-})
 
-io.on('connection', (socket) => {
-  logger.info('a user connected__' + socket.id)
-
-  socket.on('getCounter', () => {
-    console.log('getCounter')
-
-    io.emit('user-count', io.engine.clientsCount)
-  })
-})
-
-//测试
-const stream = desktopCapturer.getSources({ types: ['window', 'screen'] })
-initialization('stun', stream)
+const io = createServer(3000)
+getServer(io)
