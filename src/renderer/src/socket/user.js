@@ -16,14 +16,3 @@ export function createLink(ip) {
   })
   return link
 }
-
-// user01.on('connect', () => {
-//   console.log('连接成功')
-// })
-
-// user01.on('user-count', (count) => {
-//   usercount.value = count
-// })
-// const GetCounter = () => {
-//   user01.emit('getCounter')
-// }
