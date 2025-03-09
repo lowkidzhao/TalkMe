@@ -1,107 +1,113 @@
 <script setup>
-import { ref } from 'vue'
-import { initialization } from './utility/webrtc.js'
-import { createLink } from './socket/user.js'
+  import { ref } from 'vue'
+  import { initialization } from './utility/webrtc.js'
+  import { createLink } from './socket/user.js'
 
-// 用户类型常量
-const PEER_TYPES = ['A', 'B']
-
-// 状态管理
-const peers = ref({
-  A: {
-    pc: null,
-    status: '等待连接',
-    stream: null,
-    link: createLink('localhost:3000')
-  },
-  B: {
-    pc: null,
-    status: '等待连接',
-    stream: null,
-    link: createLink('localhost:3000') // 使用同一信令服务器
+  const videoB = ref(null)
+  const videoA = ref(null)
+  let A_socket = null
+  let B_socket = null
+  let A_pc = null
+  let B_pc = null
+  const startSocket = async () => {
+    A_socket = await createLink('localhost:3000')
+    setTimeout(() => {}, 100)
+    B_socket = await createLink('localhost:3000')
   }
-})
-
-// 初始化PeerConnection
-const initPeerConnection = async (type) => {
-  const pc = initialization('stun')
-  const link = peers.value[type].link
-
-  // ICE候选处理
-  pc.onicecandidate = ({ candidate }) => {
-    if (candidate) {
-      link.emit('ice-candidate', {
-        candidate,
-        target: type === 'A' ? 'B' : 'A'
-      })
-    }
-  }
-
-  // 状态跟踪
-  pc.oniceconnectionstatechange = () => {
-    peers.value[type].status = pc.iceConnectionState
-  }
-
-  // 媒体处理
-  try {
-    const stream = await navigator.mediaDevices.getDisplayMedia({
-      video: { width: 1280, height: 720 },
+  const startWrtc = async () => {
+    A_pc = await initialization('stun')
+    B_pc = await initialization('stun')
+    //获取A的流
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
       audio: true
     })
-    stream.getTracks().forEach((track) => pc.addTrack(track, stream))
-    peers.value[type].stream = stream
-  } catch (e) {
-    console.error(`[${type}] 媒体捕获失败:`, e)
-    throw e
-  }
-
-  // 信令处理
-  link
-    .on('offer', async ({ offer }) => {
-      await pc.setRemoteDescription(offer)
-      const answer = await pc.createAnswer()
-      await pc.setLocalDescription(answer)
-      link.emit('answer', { answer, from: type })
-    })
-    .on('answer', async ({ answer }) => {
-      await pc.setRemoteDescription(answer)
-    })
-    .on('ice-candidate', async ({ candidate }) => {
-      await pc.addIceCandidate(new RTCIceCandidate(candidate))
-    })
-
-  return pc
-}
-
-// 连接控制
-const handleConnect = async (type) => {
-  try {
-    if (!peers.value[type].pc) {
-      peers.value[type].pc = await initPeerConnection(type)
+    videoA.value.srcObject = stream
+    //处理AB交互
+    await exchangeSDP(stream)
+    B_pc.ontrack = (event) => {
+      videoB.value.srcObject = event.streams[0]
     }
-
-    const pc = peers.value[type].pc
-    const offer = await pc.createOffer()
-    await pc.setLocalDescription(offer)
-    peers.value[type].link.emit('offer', {
-      offer,
-      target: type === 'A' ? 'B' : 'A'
-    })
-  } catch (e) {
-    console.error(`[${type}] 连接失败:`, e)
-    peers.value[type].status = '连接失败'
   }
-}
+  //交换SDP
+  async function exchangeSDP(stream) {
+    //将A的流添加到A的pc中
+    stream.getTracks().forEach((track) => {
+      A_pc.addTrack(track, stream)
+    })
+    //生成ICE候选
+    A_pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        A_socket.emit('toB_candidate', event.candidate)
+      }
+    }
+    //获取B的ICE
+    A_socket.on('getB_candidate', (candidate) => {
+      A_pc.addIceCandidate(candidate)
+    })
+    //获取B的ICE
+    A_socket.on('getB_candidate', (candidate) => {
+      A_pc.addIceCandidate(candidate)
+    })
+    //A向B发送offer
+    A_pc.createOffer().then((offer) => {
+      A_pc.setLocalDescription(offer)
+      A_socket.emit('offer', offer)
+    })
+    //收到B的answer
+    A_socket.on('toA', (answer) => {
+      A_pc.setRemoteDescription(answer)
+    })
+    //收到A的offer
+    B_socket.on('toB', (offer) => {
+      //添加远程地址
+      B_pc.setRemoteDescription(offer)
+      //生成answer
+      B_pc.createAnswer().then((answer) => {
+        //添加本地地址
+        B_pc.setLocalDescription(answer)
+        B_socket.emit('answer', answer)
+      })
+    })
+    //生成B的ICE
+    B_pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        B_socket.emit('toA_candidate', event.candidate)
+      }
+    }
+    //B收到A的ICE
+    B_socket.on('getA_candidate', (candidate) => {
+      B_pc.addIceCandidate(candidate)
+    })
+  }
 </script>
 
 <template>
   <div class="container">
     <h3>双用户连接模拟 (同一信令服务器)</h3>
-    <div v-for="t in PEER_TYPES" :key="t" class="user-panel">
-      <button @click="handleConnect(t)">用户 {{ t }} 发起连接</button>
-      <div>状态: {{ peers[t].status }}</div>
-      <video v-if="peers[t].stream" :srcObject.prop="peers[t].stream" autoplay muted playsinline
-        class="video-output"></video>
+    <div>
+      <span>A</span>
+      <button @click="startSocket">创建连接</button>
+      <button @click="startWrtc">开始</button>
+      <video
+        ref="videoA"
+        autoplay
+        muted
+        controls
+        class="video-preview"
+        style="width: 100%; max-width: 600px"
+      ></video>
+    </div>
+    <div>
+      <span>B</span>
+      <video
+        ref="videoB"
+        autoplay
+        muted
+        controls
+        class="video-preview"
+        style="width: 100%; max-width: 600px"
+      ></video>
     </div>
   </div>
 </template>

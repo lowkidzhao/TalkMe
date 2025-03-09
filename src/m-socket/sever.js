@@ -44,18 +44,32 @@ export function createServer(port) {
  * 载入监听服务
  * @param {服务器实例} io
  */
-export function Start(io, type) {
+export function Start(io) {
   try {
     io.on('connection', (socket) => {
+      // 监听客户端连接
       logger.info('a user connected__' + socket.id)
-
+      // 监听客户端断开连接
+      socket.on('disconnect', () => {
+        logger.info('user disconnected__' + socket.id)
+      })
+      // 获取用户数量
       socket.on('getCounter', () => {
         logger.info('getCounter')
         io.emit('user-count', io.engine.clientsCount)
       })
-      socket.on('webrtc-offer', (data) => {
-        // 添加type标识转发到对应终端
-        io.emit('webrtc-offer', { ...data, origin: type })
+      // 监听webrtc-answer事件
+      socket.on('offer', (offer) => {
+        io.emit('toB', offer)
+      })
+      socket.on('answer', (answer) => {
+        io.emit('toA', answer)
+      })
+      socket.on('toA_candidate', (candidate) => {
+        io.emit('getB_candidate', candidate)
+      })
+      socket.on('toB_candidate', (candidate) => {
+        io.emit('getA_candidate', candidate)
       })
     })
   } catch (err) {

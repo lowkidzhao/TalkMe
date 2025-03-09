@@ -3,9 +3,14 @@ import config from '../../../config/TM_config.json'
  *  初始化
  * @param {网络类型} type
  */
-export function initialization(type) {
-  const pc = new RTCPeerConnection(iceServers(config, type))
-  return pc
+export async function initialization(type) {
+  try {
+    const pc = await new RTCPeerConnection(iceServers(config, type))
+    return pc
+  } catch (error) {
+    console.error('PC初始化失败:', error)
+    return null
+  }
 }
 /**
  * 添加视频流

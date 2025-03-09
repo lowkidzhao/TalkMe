@@ -5,8 +5,8 @@ import { io } from 'socket.io-client'
  * @param {地址} ip
  * @returns 连接实例
  */
-export function createLink(ip) {
-  const link = io(ip, {
+export async function createLink(ip) {
+  const link = await io(ip, {
     transports: ['websocket'],
     autoConnect: true,
     reconnection: true,

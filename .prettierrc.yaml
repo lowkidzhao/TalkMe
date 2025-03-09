@@ -1,0 +1,5 @@
+singleQuote: true
+semi: false
+printWidth: 100
+trailingComma: none
+vueIndentScriptAndStyle: true # 新增 Vue 文件缩进规则
