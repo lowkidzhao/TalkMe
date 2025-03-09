@@ -8,7 +8,15 @@ import { initialization } from '../utility/webrtc'
  */
 export async function createLink(ip, type) {
   try {
-    const socket_link = await io(ip, {
+    // 生产环境特殊处理
+    const isProduction = process.env.NODE_ENV === 'production'
+
+    // 修正文件协议问题
+    const serverUrl = isProduction
+      ? `http://localhost:${ip}` // 生产环境使用固定端口
+      : ip // 开发环境保持原样
+
+    const socket_link = await io(serverUrl, {
       transports: ['websocket'],
       autoConnect: true,
       reconnection: true,

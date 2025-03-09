@@ -11,7 +11,10 @@ export function createServer(port) {
     // 创建时不要立即绑定端口
     const io = new Server({
       cors: {
-        origin: 'http://localhost:5173',
+        origin:
+          process.env.NODE_ENV === 'production'
+            ? 'app://*' // 生产环境使用Electron的app协议
+            : 'http://localhost:5173', // 开发环境
         methods: ['GET', 'POST', 'PUT'],
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true

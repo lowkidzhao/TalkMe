@@ -56,7 +56,7 @@
 <template>
   <div>
     <span>别名：{{ self_name }}</span>
-    <span>ID：{{ self_id }}</span>
+    <span>ID: {{ self_id }}</span>
     <br />
     <input v-model="target" type="text" placeholder="服务器地址" />
     <input v-model="type" type="text" placeholder="服务器类型" />

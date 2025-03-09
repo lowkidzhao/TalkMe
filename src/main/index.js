@@ -21,6 +21,7 @@ function createWindow() {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+    mainWindow.webContents.openDevTools() // 打开开发者工具
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
