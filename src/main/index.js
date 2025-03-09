@@ -61,7 +61,6 @@ app.whenReady().then(() => {
   session.defaultSession.setDisplayMediaRequestHandler(async (request, callback) => {
     try {
       const sources = await desktopCapturer.getSources({ types: ['screen'] })
-
       // 添加音频设备支持
       callback({
         video: sources[0],

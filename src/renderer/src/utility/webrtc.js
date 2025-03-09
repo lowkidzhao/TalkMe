@@ -8,7 +8,7 @@ export async function initialization(type) {
     const pc = await new RTCPeerConnection(iceServers(config, type))
     return pc
   } catch (error) {
-    console.error('PC初始化失败:', error)
+    console.error('RTC初始化失败:', error)
     return null
   }
 }
@@ -30,14 +30,15 @@ export function AddStream(pc, stream) {
  * @returns
  */
 function iceServers(config, type) {
-  let iceServers // 在函数作用域顶部声明变量
-
-  if (type === 'stun') {
-    iceServers = config.network.iceServers[0]
-  } else if (type === 'turn') {
-    iceServers = config.network.iceServers[1]
+  // 在现有配置基础上添加网络约束
+  return {
+    iceServers: [config.network.iceServers[type === 'stun' ? 0 : 1]],
+    iceTransportPolicy: 'all',
+    // 新增网络约束
+    iceCandidatePoolSize: 5,
+    bundlePolicy: 'max-bundle',
+    rtcpMuxPolicy: 'require'
   }
-  return { iceServers: [iceServers] } // 返回标准结构
 }
 
 /**
@@ -46,18 +47,34 @@ function iceServers(config, type) {
  * @returns 字符串
  */
 export async function GetState(pc) {
-  let connectionInfo = {
-    state: pc.connectionState,
-    remoteIP: '',
-    localIP: '',
-    protocol: ''
-  }
-  // 添加状态转换逻辑
-  if (pc.iceConnectionState) {
-    connectionInfo.state = pc.iceConnectionState
+  const connectionInfo = {
+    iceState: pc.iceConnectionState,
+    connectionState: pc.connectionState,
+    remoteIP: new Set(),
+    localIP: new Set(),
+    protocol: new Set()
   }
 
-  return connectionInfo
+  const stats = await pc.getStats()
+
+  stats.forEach((report) => {
+    // 解析本地候选
+    if (report.type === 'local-candidate') {
+      connectionInfo.localIP.add(report.ip || report.address)
+      connectionInfo.protocol.add(report.protocol.toLowerCase())
+    }
+    // 解析远程候选
+    if (report.type === 'remote-candidate') {
+      connectionInfo.remoteIP.add(report.ip || report.address)
+    }
+  })
+
+  return {
+    ...connectionInfo,
+    remoteIP: Array.from(connectionInfo.remoteIP).join(', ') || 'N/A',
+    localIP: Array.from(connectionInfo.localIP).join(', ') || 'N/A',
+    protocol: Array.from(connectionInfo.protocol).join('/') || 'N/A'
+  }
 }
 
 // new
