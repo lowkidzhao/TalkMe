@@ -12,12 +12,6 @@
           "stun:stun.mozilla.org:3478"
         ],
         "timeout": 3
-      },
-      {
-        "urls": "turn:your-turn-server.com:5349",
-        "username": "your_username",
-        "credential": "your_password",
-        "timeout": 5
       }
     ]
   },

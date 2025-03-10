@@ -45,7 +45,7 @@
   const getVideo = async () => {
     video_self.value.srcObject = await navigator.mediaDevices.getDisplayMedia({
       video: { width: 1280, height: 720, frameRate: 60 },
-      audio: true
+      audio: false
     })
     AddStream(link, video_self.value.srcObject)
     //触发接受流事件

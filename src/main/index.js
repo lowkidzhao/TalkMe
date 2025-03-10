@@ -3,7 +3,6 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import logger from '../log/logger'
-import { createServer, Start } from '../m-socket/sever'
 
 function createWindow() {
   // Create the browser window.
@@ -21,7 +20,9 @@ function createWindow() {
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
-    mainWindow.webContents.openDevTools() // 打开开发者工具
+    if (process.env.NODE_ENV === 'development') {
+      mainWindow.webContents.openDevTools()
+    }
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -94,8 +95,3 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
-
-// 创建两个信令服务器
-const ioA = createServer(3000) // 处理终端A的信令
-
-Start(ioA, 'A')

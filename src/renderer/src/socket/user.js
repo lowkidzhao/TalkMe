@@ -13,8 +13,8 @@ export async function createLink(ip, type) {
 
     // 修正文件协议问题
     const serverUrl = isProduction
-      ? `http://localhost:${ip}` // 生产环境使用固定端口
-      : ip // 开发环境保持原样
+      ? 'http://' + ip // 生产环境使用固定端口
+      : 'http://localhost:' + ip // 开发环境保持原样
 
     const socket_link = await io(serverUrl, {
       transports: ['websocket'],
@@ -24,7 +24,14 @@ export async function createLink(ip, type) {
       reconnectionDelayMax: 5000,
       reconnectionAttempts: Infinity
     })
+    socket_link.on('connect', () => console.log('Socket connected'))
+    socket_link.on('connect_error', (err) => console.log('Socket error:', err))
+
     const rtc_link = await initialization(socket_link, type)
+    // 添加 ICE 状态监听
+    rtc_link.oniceconnectionstatechange = () =>
+      console.log('ICE 连接状态:', rtc_link.iceConnectionState)
+
     const douLink = { socket_link, rtc_link }
     offer_get(douLink)
     answer_get(douLink)
@@ -32,6 +39,7 @@ export async function createLink(ip, type) {
     return douLink
   } catch (error) {
     console.log('服务器连接出错： ' + error)
+    throw error
   }
 }
 /**

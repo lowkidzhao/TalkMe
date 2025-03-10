@@ -5,11 +5,13 @@ import config from '../../../config/TM_config.json'
  */
 export async function initialization(type) {
   try {
-    const pc = await new RTCPeerConnection(iceServers(config, type))
+    const iceconfig = iceServers(config, type)
+    const pc = new RTCPeerConnection(config)
+    console.log('ICE 服务器配置:', iceconfig)
     return pc
   } catch (error) {
     console.error('RTC初始化失败:', error)
-    return null
+    throw error
   }
 }
 /**

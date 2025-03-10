@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "An Electron application with Vue",
   "main": "./out/main/index.js",
-  "author": "example.com",
+  "author": "pushme",
   "homepage": "https://electron-vite.org",
+  "packageManager": "pnpm@10.5.2",
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",
