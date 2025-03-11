@@ -6,15 +6,9 @@ import { initialization } from '../utility/webrtc'
  * @param {stun/turn} type
  * @returns socket与webrtc的复合对象
  */
-export async function createLink(ip, type) {
+export async function createLink(url, type) {
   try {
-    // 生产环境特殊处理
-    const isProduction = process.env.NODE_ENV === 'production'
-
-    // 修正文件协议问题
-    const serverUrl = isProduction
-      ? 'http://' + ip // 生产环境使用固定端口
-      : 'http://localhost:' + ip // 开发环境保持原样
+    const serverUrl = `http://${url}`
 
     const socket_link = await io(serverUrl, {
       transports: ['websocket'],
@@ -47,12 +41,25 @@ export async function createLink(ip, type) {
  * @param {复合对象} douLink
  * @param {目标名字} name
  */
-export function Default_Send(douLink, name) {
-  douLink.rtc_link.createOffer().then((offer) => {
-    douLink.rtc_link.setLocalDescription(offer)
-    douLink.socket_link.emit('offer', { name: name, content: offer })
-    IceCandidate_event(douLink, name, null)
-  })
+export async function Default_Send(douLink, name) {
+  await douLink.rtc_link
+    .createOffer()
+    .then((offer) => {
+      douLink.rtc_link.setLocalDescription(offer).then(() => {
+        // 修改 offer.toJSON() 为手动转换
+        douLink.socket_link.emit('offer', {
+          name: name,
+          offer: {
+            sdp: offer.sdp,
+            type: offer.type
+          }
+        })
+        IceCandidate_event(douLink, name, null)
+      })
+    })
+    .catch((error) => {
+      console.error('Offer 创建失败:', error)
+    })
 }
 /**
  * 接收offer
@@ -60,13 +67,26 @@ export function Default_Send(douLink, name) {
  */
 function offer_get(douLink) {
   douLink.socket_link.on('offer_get', (data) => {
-    douLink.rtc_link.setRemoteDescription(data.offer)
-    douLink.rtc_link.createAnswer().then((answer) => {
-      douLink.rtc_link.setLocalDescription(answer)
-      //重复利用
-      douLink.socket_link.emit('answer', { id: data.id, answer: answer })
-      IceCandidate_event(douLink, null, data.id)
-    })
+    const offer = new RTCSessionDescription(data.offer)
+    douLink.rtc_link
+      .setRemoteDescription(offer)
+      .then(() => {
+        douLink.rtc_link.createAnswer().then((answer) => {
+          douLink.rtc_link.setLocalDescription(answer)
+          // 修改 answer.toJSON() 为手动转换
+          douLink.socket_link.emit('answer', {
+            id: data.id,
+            answer: {
+              sdp: answer.sdp,
+              type: answer.type
+            }
+          })
+          IceCandidate_event(douLink, null, data.id)
+        })
+      })
+      .catch((error) => {
+        console.error('解析offer与发送answer 设置失败:', error)
+      })
   })
 }
 /**
@@ -75,7 +95,8 @@ function offer_get(douLink) {
  */
 function answer_get(douLink) {
   douLink.socket_link.on('answer_get', (data) => {
-    douLink.rtc_link.setRemoteDescription(data.answer)
+    const answer = new RTCSessionDescription(data.answer)
+    douLink.rtc_link.setRemoteDescription(answer)
   })
 }
 /**
@@ -88,7 +109,7 @@ function IceCandidate_event(douLink, name, id) {
   douLink.rtc_link.onicecandidate = (event) => {
     if (event.candidate) {
       douLink.socket_link.emit('icecandidate', {
-        candidate: event.candidate,
+        candidate: event.candidate.toJSON(),
         name: name,
         id: id
       })
@@ -100,7 +121,8 @@ function IceCandidate_event(douLink, name, id) {
  * @param {复合对象} douLink
  */
 function icecandidate_get(douLink) {
-  douLink.socket_link.on('remote-icecandidate', (candidate) => {
+  douLink.socket_link.on('remote-icecandidate', (precandidate) => {
+    const candidate = new RTCIceCandidate(precandidate)
     douLink.rtc_link.addIceCandidate(candidate)
   })
 }
@@ -110,7 +132,14 @@ function icecandidate_get(douLink) {
  * @param {视频流} stream
  */
 export function AddStream(douLink, stream) {
-  douLink.rtc_link.addStream(stream)
+  try {
+    stream.getTracks().forEach((track) => {
+      douLink.rtc_link.addTrack(track, stream)
+    })
+    console.log('添加视频流成功')
+  } catch (error) {
+    console.error('添加视频流失败:', error)
+  }
 }
 
 /**
@@ -119,15 +148,30 @@ export function AddStream(douLink, stream) {
  * @returns 接受的数据流
  */
 export function GetStream(douLink) {
-  douLink.rtc_link.onTrack = (event) => {
-    if (event.streams && event.streams[0]) {
-      try {
-        return event.streams[0]
-      } catch (err) {
-        console.error('视频流获取失败:', err)
+  return new Promise((resolve, reject) => {
+    // 添加超时处理
+    const timeoutId = setTimeout(() => {
+      reject(new Error('等待视频流超时（5秒）'))
+    }, 5000)
+
+    // 使用箭头函数保持 this 指向
+    const trackHandler = (event) => {
+      if (event.streams?.length > 0) {
+        clearTimeout(timeoutId)
+        try {
+          resolve(event.streams[0])
+          // 移除监听器避免内存泄漏
+          douLink.rtc_link.removeEventListener('track', trackHandler)
+        } catch (err) {
+          console.error('视频流处理失败:', err)
+          reject(err)
+        }
       }
     }
-  }
+
+    // 使用标准事件监听接口
+    douLink.rtc_link.addEventListener('track', trackHandler)
+  })
 }
 
 /**
