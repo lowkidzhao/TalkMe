@@ -1,7 +1,8 @@
 {
-  "name": "talk_me",
+  "name": "talkme",
+  "productName": "TalkMe",
   "version": "1.0.0",
-  "description": "An Electron application with Vue",
+  "description": "TalkMe - Video Conferencing Application",
   "main": "./out/main/index.js",
   "author": "pushme",
   "homepage": "https://electron-vite.org",
@@ -22,6 +23,10 @@
     "@electron-toolkit/preload": "^3.0.1",
     "@electron-toolkit/utils": "^4.0.0",
     "@electron/remote": "^2.1.2",
+    "@primevue/themes": "^4.3.2",
+    "pinia": "^3.0.1",
+    "primeicons": "^7.0.0",
+    "primevue": "^4.3.2",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "winston": "^3.17.0",
@@ -29,6 +34,7 @@
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^2.0.0",
+    "@primevue/auto-import-resolver": "^4.3.2",
     "@types/webrtc": "^0.0.45",
     "@vitejs/plugin-vue": "^5.2.1",
     "electron": "^34.2.0",
@@ -36,6 +42,7 @@
     "electron-vite": "^3.0.0",
     "eslint": "^9.20.1",
     "eslint-plugin-vue": "^9.32.0",
+    "unplugin-vue-components": "^28.4.1",
     "vite": "^6.1.0",
     "vue": "^3.5.13"
   },

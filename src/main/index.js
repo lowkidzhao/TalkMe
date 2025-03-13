@@ -7,8 +7,10 @@ import logger from '../log/logger'
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 720,
+    width: 900,
+    height: 600,
+    frame: false, // 添加这行隐藏标题栏和边框
+    titleBarStyle: 'hidden', // 针对 macOS 的额外设置
     show: false,
     autoHideMenuBar: true,
     ...(process.platform === 'linux' ? { icon } : {}),
@@ -95,3 +97,23 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+// 最小化
+ipcMain.on('window-minimize', () => {
+  const win = BrowserWindow.getFocusedWindow()
+  if (win) win.minimize()
+})
+// 最大化
+ipcMain.on('window-maximize', () => {
+  const win = BrowserWindow.getFocusedWindow()
+  if (win.isMaximized()) {
+    win.unmaximize()
+  } else {
+    win.maximize()
+  }
+})
+// 关闭
+ipcMain.on('window-close', () => {
+  const win = BrowserWindow.getFocusedWindow()
+  if (win) win.close()
+})

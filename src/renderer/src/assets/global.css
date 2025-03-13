@@ -1,18 +1,20 @@
-@font-face {
-  font-family: 'EnglishFont';
-  src: url('/font/JetBrainsMono-Bold.woff2') format('woff2'); /* 修改为绝对路径 */
-  unicode-range: U+0000-007F;
-}
-
-/* 添加中文字体 */
-@font-face {
-  font-family: 'ChineseFont';
-  src: url('/font/JetBrainsMono-Bold.woff2') format('woff2');
-  unicode-range: U+4E00-9FFF;
-}
+/* 新增 PrimeIcons 导入 */
+@import 'primeicons/primeicons.css';
 
 * {
-  font-family: 'EnglishFont', 'ChineseFont', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  font-size: 17px;
+}
+
+a {
+  text-decoration: none;
+  color: #333;
+}
+a:hover,
+a:visited,
+a:link,
+a:active {
+  color: #333;
 }

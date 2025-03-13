@@ -1,5 +1,6 @@
 <script setup>
   import { ref } from 'vue'
+  import titlebar from './components/titlebar.vue'
   import { createLink, Default_Send, AddStream, GetStream, GetUserInfo } from './socket/user.js'
   // localhost:3000
   const self_name = ref('')
@@ -102,6 +103,7 @@
 </script>
 
 <template>
+  <titlebar />
   <div>
     <span>别名：{{ self_name }}</span>
     <span>ID: {{ self_id }}</span>
@@ -121,3 +123,4 @@
     <video ref="video_remote" autoplay></video>
   </div>
 </template>
+<style></style>
