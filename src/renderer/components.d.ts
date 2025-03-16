@@ -8,15 +8,12 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Avatar: typeof import('primevue/avatar')['default']
     Button: typeof import('primevue/button')['default']
     ButtonGroup: typeof import('primevue/buttongroup')['default']
-    Dropdown: typeof import('primevue/dropdown')['default']
     FloatLabel: typeof import('primevue/floatlabel')['default']
     InputText: typeof import('primevue/inputtext')['default']
     Link: typeof import('./src/components/link.vue')['default']
     Login: typeof import('./src/components/login.vue')['default']
-    Message: typeof import('primevue/message')['default']
     Select: typeof import('primevue/select')['default']
     Titlebar: typeof import('./src/components/titlebar.vue')['default']
     Toast: typeof import('primevue/toast')['default']

@@ -8,6 +8,13 @@ files:
   - '!electron.vite.config.{js,ts,mjs,cjs}'
   - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env,.env.*,.npmrc,pnpm-lock.yaml}'
+  # # 排除不需要的 Electron 相关依赖
+  - '!node_modules/electron-*'
+  - '!node_modules/electron-builder'
+  - '!node_modules/electron-prebuilt-compile'
+  - '!node_modules/electron-edge-js/**/*'
+  - '!node_modules/@tailwindcss/**/*'
+  - '!node_modules/tailwindcss/**/*' # 可选，如果使用基础包
 asarUnpack:
   - resources/**
 win:
@@ -16,7 +23,11 @@ nsis:
   artifactName: ${name}-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
-  createDesktopShortcut: always
+  oneClick: false # 启用安装向导
+  allowToChangeInstallationDirectory: true # 允许选择安装路径
+  createDesktopShortcut: true # 创建桌面快捷方式
+  runAfterFinish: true # 安装完成后启动程序
+  deleteAppDataOnUninstall: true # 添加卸载时清理数据
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
