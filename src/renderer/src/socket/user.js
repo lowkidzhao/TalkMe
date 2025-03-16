@@ -8,7 +8,7 @@ import { initialization } from '../utility/webrtc'
  */
 export async function createLink(url, type) {
   try {
-    const serverUrl = `http://${url}`
+    const serverUrl = `ws://${url}`
 
     const socket_link = await io(serverUrl, {
       transports: ['websocket'],
@@ -193,3 +193,37 @@ export function GetUserInfo(douLink) {
 //   douLink.socket_link.close()
 //   douLink.rtc_link.close()
 // }
+/**
+ * 注册
+ * @param {复合对象} douLink
+ * @param {注册数据} data
+ * @returns 结果
+ */
+export function Register(douLink, data) {
+  return new Promise((resolve, reject) => {
+    douLink.socket_link.emit('register', data)
+    douLink.socket_link.on('register', (res) => {
+      if (res.error) {
+        reject(res.error)
+      }
+      resolve(res)
+    })
+  })
+}
+/**
+ * 登录
+ * @param {复合对象} douLink
+ * @param {登录数据} data
+ * @returns 结果
+ */
+export function Login(douLink, data) {
+  return new Promise((resolve, reject) => {
+    douLink.socket_link.emit('login', data)
+    douLink.socket_link.on('login', (res) => {
+      if (res.error) {
+        reject(res.error)
+      }
+      resolve(res)
+    })
+  })
+}

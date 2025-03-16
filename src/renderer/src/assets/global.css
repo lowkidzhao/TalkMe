@@ -1,6 +1,6 @@
 /* 新增 PrimeIcons 导入 */
 @import 'primeicons/primeicons.css';
-
+@import 'tailwindcss';
 * {
   padding: 0;
   margin: 0;

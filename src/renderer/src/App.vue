@@ -2,6 +2,9 @@
   import { ref } from 'vue'
   import titlebar from './components/titlebar.vue'
   import { createLink, Default_Send, AddStream, GetStream, GetUserInfo } from './socket/user.js'
+  import login from './components/login.vue'
+  import { useLinkStore } from './store/useLinkStore.js'
+  const linkstore = useLinkStore()
   // localhost:3000
   const self_name = ref('')
   const self_id = ref('')
@@ -21,6 +24,7 @@
       return
     } else {
       link = await createLink(target.value, type.value)
+      linkstore.link = link
       if (link === null) {
         alert('连接失败')
         return
@@ -105,6 +109,7 @@
 <template>
   <titlebar />
   <div>
+    <login />
     <span>别名：{{ self_name }}</span>
     <span>ID: {{ self_id }}</span>
     <br />
