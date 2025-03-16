@@ -4,12 +4,14 @@ import App from './App.vue'
 import './assets/global.css'
 import PrimeVue from 'primevue/config'
 import Material from '@primeuix/themes/material' // 改用官方标准主题包
+import ToastService from 'primevue/toastservice'
 
 const app = createApp(App)
 const pinia = createPinia() // 创建 Pinia 实例
 
 app
   .use(pinia) // 先安装 Pinia
+  .use(ToastService)
   .use(PrimeVue, {
     ripple: false,
     theme: {

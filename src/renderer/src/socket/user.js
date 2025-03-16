@@ -12,14 +12,20 @@ export async function createLink(url, type) {
 
     const socket_link = await io(serverUrl, {
       transports: ['websocket'],
-      autoConnect: true,
+      autoConnect: false, // 关闭自动连接
       reconnection: true,
       reconnectionDelay: 1000,
       reconnectionDelayMax: 5000,
       reconnectionAttempts: Infinity
     })
-    socket_link.on('connect', () => console.log('Socket connected'))
-    socket_link.on('connect_error', (err) => console.log('Socket error:', err))
+    // 添加连接等待逻辑
+    await new Promise((resolve, reject) => {
+      socket_link.once('connect', resolve)
+      socket_link.once('connect_error', (err) => {
+        reject(new Error(`Socket连接失败: ${err.message}`))
+      })
+      socket_link.connect() // 手动触发连接
+    })
 
     const rtc_link = await initialization(socket_link, type)
     // 添加 ICE 状态监听
