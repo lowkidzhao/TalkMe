@@ -111,7 +111,7 @@
 <template>
   <div class="p-4">
     <!-- 添加外层容器 padding -->
-    <form @submit.prevent="handleSubmit">
+    <form @submit.prevent>
       <div class="space-y-4">
         <!-- 添加间距容器 -->
         <FloatLabel variant="on">
@@ -149,8 +149,9 @@
           type="submit"
           label="注册"
           class="mt-4"
+          @click="handleSubmit('register')"
         />
-        <Button type="submit" label="登录" class="mt-4" />
+        <Button type="submit" label="登录" class="mt-4" @click="handleSubmit('login')" />
       </div>
     </form>
   </div>
