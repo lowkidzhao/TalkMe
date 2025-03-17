@@ -1,185 +1,147 @@
 <script setup>
   import { ref } from 'vue'
-  import { useLinkStore } from '../store/useLinkStore'
-  import { Login, Register } from '../socket/user.js'
   import { useToast } from 'primevue/usetoast'
+  import { useLinkStore } from '../store/useLinkStore'
+  import { Login, Register, CreateValid } from '../socket/user.js'
+  import { Form, Field } from 'vee-validate'
+  import * as yup from 'yup'
 
-  const toast = useToast() // 添加 toast 服务
-  const linkstore = useLinkStore()
-  // 表单数据
-  const data = ref({
-    name: '',
-    password: '',
-    email: ''
-  })
+  // 状态管理
+  const toast = useToast()
+  const linkStore = useLinkStore()
+  // 增加注册状态标识
+  const isRegistration = ref(false)
+  const showVerificationCode = ref(false)
 
-  // 新增错误状态
-  const errors = ref({
+  // 表单数据模型
+  const formData = ref({
     email: '',
-    name: '',
-    password: ''
+    password: '',
+    username: '',
+    verificationCode: ''
   })
 
-  // 验证规则
-  const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return re.test(String(email).toLowerCase())
+  // 表单验证规则
+  const validationSchema = yup.object({
+    email: yup.string().email('请输入有效的邮箱地址').required('邮箱不能为空'),
+    password: yup.string().min(6, '密码至少需要6位').required('密码不能为空'),
+    username: yup.string().when('isRegistration', {
+      is: true,
+      then: yup.string().required('用户名不能为空'),
+      otherwise: yup.string()
+    }),
+    verificationCode: yup.string().when('showVerificationCode', {
+      is: true,
+      then: yup.string().length(5, '验证码必须为5位').required('验证码不能为空'),
+      otherwise: yup.string()
+    })
+  })
+
+  // 表单提交处理
+  const handleAuthentication = async (values, { resetForm }) => {
+    try {
+      // 添加验证码校验步骤
+      if (isRegistration.value && showVerificationCode.value) {
+        if (values.verificationCode?.length !== 5) {
+          throw new Error('验证码必须为5位数字')
+        }
+      }
+      if (values.isRegistration) {
+        await handleRegistration(values)
+      } else {
+        await handleLogin(values)
+      }
+      resetForm()
+    } catch (error) {
+      showErrorToast('操作失败', error.message || '请检查网络连接后重试')
+    }
   }
 
-  const validatePassword = (password) => {
-    return password.length >= 6
+  // 处理注册流程
+  const handleRegistration = async (values) => {
+    await CreateValid(linkStore.link, values)
+    showVerificationCode.value = true
+    showSuccessToast('验证码已发送', '请查看您的邮箱')
+
+    const response = await Register(linkStore.link, values)
+    completeRegistration(response)
   }
 
-  // 修改处理函数接收参数
-  const handleSubmit = (actionType) => {
-    // 重置错误状态
-    errors.value = { email: '', name: '', password: '' }
+  // 完成注册
+  const completeRegistration = (response) => {
+    localStorage.setItem('token', response.token)
+    showVerificationCode.value = false
+    showSuccessToast('注册成功', '欢迎加入我们')
+  }
 
-    // 公共验证逻辑
-    if (!data.value.email) {
-      errors.value.email = '邮箱不能为空'
-    } else if (!validateEmail(data.value.email)) {
-      errors.value.email = '邮箱格式不正确'
-    }
+  // 处理登录流程
+  const handleLogin = async (values) => {
+    const response = await Login(linkStore.link, values)
+    localStorage.setItem('token', response.token)
+    showSuccessToast('登录成功', `欢迎回来，${response.username}`)
+  }
 
-    if (!data.value.password) {
-      errors.value.password = '密码不能为空'
-    } else if (!validatePassword(data.value.password)) {
-      errors.value.password = '密码至少需要6位'
-    }
+  // Toast 辅助方法
+  const showSuccessToast = (summary, detail) => {
+    toast.add({ severity: 'success', summary, detail, life: 2000 })
+  }
 
-    // 注册专属验证
-    if (!data.value.name.trim()) {
-      errors.value.name = '姓名不能为空'
-    }
+  const showErrorToast = (summary, detail) => {
+    toast.add({ severity: 'error', summary, detail, life: 2000 })
+  }
 
-    // 检查是否有错误
-    if (!Object.values(errors.value).some((error) => error)) {
-      console.log('验证通过，提交数据:', data.value)
-      // 根据类型调用不同接口
-      actionType === 'register'
-        ? Register(linkstore.link, data.value)
-            .then((res) => {
-              console.log('注册成功:', res)
-              toast.add({
-                severity: 'success',
-                summary: '注册成功',
-                detail: '注册成功',
-                life: 2000
-              })
-            })
-            .catch((err) => {
-              console.error('注册失败:', err)
-              toast.add({
-                severity: 'error',
-                summary: '注册失败',
-                detail: err,
-                life: 2000
-              })
-            })
-        : Login(linkstore.link, data.value)
-            .then((res) => {
-              console.log('登录成功:', res)
-              toast.add({
-                severity: 'success',
-                summary: '登录成功',
-                detail: '登录成功',
-                life: 2000
-              })
-            })
-            .catch((err) => {
-              console.error('登录失败:', err)
-              toast.add({
-                severity: 'error',
-                summary: '登录失败',
-                detail: err,
-                life: 2000
-              })
-            })
-    } else {
-      console.log('验证失败，错误信息:', errors.value)
-      toast.add({
-        severity: 'error',
-        summary: '验证失败',
-        detail: errors.value,
-        life: 2000
-      })
-    }
+  // 增加模式切换方法
+  const toggleAuthMode = () => {
+    isRegistration.value = !isRegistration.value
+    showVerificationCode.value = false
   }
 </script>
 
 <template>
-  <div class="p-4">
-    <!-- 添加外层容器 padding -->
-    <form @submit.prevent>
-      <div class="space-y-4">
-        <!-- 添加间距容器 -->
-        <FloatLabel variant="on">
-          <InputText
-            id="email"
-            v-model="data.email"
-            :invalid="!!errors.email"
-            @input="errors.email = ''"
-          />
-          <label for="email">邮箱</label>
-        </FloatLabel>
+  <div class="auth-container">
+    <!-- 添加模式切换按钮 -->
+    <div class="mode-toggle">
+      <Button label="切换模式" @click="toggleAuthMode" class="p-button-text" />
+      <span>{{ isRegistration ? '注册模式' : '登录模式' }}</span>
+    </div>
 
-        <FloatLabel variant="on">
-          <InputText
-            id="name"
-            v-model="data.name"
-            :invalid="!!errors.name"
-            @input="errors.name = ''"
-          />
-          <label for="name">姓名</label>
-        </FloatLabel>
-
-        <FloatLabel variant="on">
-          <InputText
-            id="password"
-            v-model="data.password"
-            :invalid="!!errors.password"
-            type="password"
-            @input="errors.password = ''"
-          />
-          <label for="password">密码</label>
-        </FloatLabel>
-        <Button
-          style="margin-left: 20px; margin-right: 35px"
-          type="submit"
-          label="注册"
-          class="mt-4"
-          @click="handleSubmit('register')"
-        />
-        <Button type="submit" label="登录" class="mt-4" @click="handleSubmit('login')" />
-      </div>
-    </form>
+    <!-- 修改按钮组 -->
+    <div class="action-buttons">
+      <Button type="submit" :label="isRegistration ? '注册' : '登录'" class="p-button-success" />
+    </div>
   </div>
 </template>
 
 <style scoped>
-  .p-4 {
-    display: inline-block; /* 使宽度随内容扩展 */
-    margin: 9px;
-  }
-  .space-y-4 > * + * {
-    margin-top: 0.5rem; /* 添加垂直间距 */
-  }
-  .p-error-enter-active {
-    transition: all 0.3s ease-out;
+  /* 新增模式切换样式 */
+  .mode-toggle {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
   }
 
-  .p-error-leave-active {
-    transition: all 0.2s cubic-bezier(1, 0.5, 0.8, 1);
+  .auth-container {
+    width: fit-content;
+    padding: 2rem;
+    margin: 0 auto;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
-  .p-error-enter-from,
-  .p-error-leave-to {
-    transform: translateY(-5px);
-    opacity: 0;
+  .form-content {
+    display: grid;
+    gap: 1.25rem;
   }
 
-  .pi-info-circle {
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .p-error {
+    color: var(--red-500);
     font-size: 0.875rem;
+    margin-top: 0.25rem;
   }
 </style>

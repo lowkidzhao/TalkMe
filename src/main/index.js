@@ -2,7 +2,6 @@ import { app, shell, BrowserWindow, ipcMain, desktopCapturer, session } from 'el
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import logger from '../log/logger'
 
 function createWindow() {
   // Create the browser window.
@@ -59,7 +58,8 @@ app.whenReady().then(() => {
   ipcMain.on('ping', () => console.log('pong'))
   // socket.io
   createWindow()
-  logger.info('app strart')
+  // logger.info('app strart')
+  console.log('[INFO] app start') // 改为 console 输出
 
   // 媒体请求处理器
   session.defaultSession.setDisplayMediaRequestHandler(async (request, callback) => {
@@ -71,18 +71,13 @@ app.whenReady().then(() => {
         audio: 'loopback'
       })
     } catch (error) {
-      logger.error('屏幕捕获失败:', error)
+      // logger.error('屏幕捕获失败:', error)
+      console.error('[ERROR] 屏幕捕获失败:', error) // 改为 console 输出
       callback({
         video: false,
-        audio: false // 添加音频失败状态
+        audio: false
       })
     }
-  })
-
-  app.on('activate', function () {
-    // On macOS it's common to re-create a window in the app when the
-    // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 })
 

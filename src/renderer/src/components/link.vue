@@ -23,7 +23,7 @@
         severity: 'success',
         summary: '连接成功',
         detail: '已成功建立服务器连接',
-        life: 3000
+        life: 2000
       })
     } catch (error) {
       console.error('连接错误:', error)
@@ -31,7 +31,7 @@
         severity: 'error',
         summary: '连接失败',
         detail: error,
-        life: 5000
+        life: 2000
       })
     } finally {
       isLoading.value = false
@@ -40,9 +40,9 @@
 </script>
 
 <template>
-  <div class="p-4">
+  <div class="tt p-4">
     <div class="space-y-4">
-      <FloatLabel>
+      <FloatLabel style="margin-top: 15px; margin-bottom: 30px">
         <InputText
           id="serverAddress"
           v-model="serverAddress"
@@ -52,7 +52,7 @@
         <label for="serverAddress">服务器地址 (例: 127.0.0.1:1145)</label>
       </FloatLabel>
 
-      <FloatLabel style="margin-top: 30px">
+      <FloatLabel>
         <Select
           v-model="serverType"
           :options="[
@@ -71,12 +71,15 @@
         :disabled="isLoading"
         @click="handleConnect"
       />
-      <!-- 替换 Toast 组件为 Vue 语法 -->
-      <Toast position="bottom-center"> </Toast>
     </div>
   </div>
 </template>
 <style scoped>
+  .tt {
+    width: fit-content;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
   .p-4 {
     display: inline-block; /* 使宽度随内容扩展 */
   }

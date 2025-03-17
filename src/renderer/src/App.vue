@@ -1,16 +1,18 @@
 <script setup>
-  import { ref } from 'vue'
+  import { useLinkStore } from './store/useLinkStore'
   import titlebar from './components/titlebar.vue'
-  import { createLink, Default_Send, AddStream, GetStream, GetUserInfo } from './socket/user.js'
   import login from './components/login.vue'
   import linkView from './components/link.vue'
+
+  const LinkStore = useLinkStore()
 </script>
 
 <template>
   <titlebar />
   <div>
     <div>
-      <linkView />
+      <Toast position="top-right" />
+      <linkView v-if="!LinkStore.link" />
       <login />
     </div>
   </div>

@@ -233,3 +233,15 @@ export function Login(douLink, data) {
     })
   })
 }
+
+export function CreateValid(douLink, data) {
+  return new Promise((resolve, reject) => {
+    douLink.socket_link.emit('createValid', data)
+    douLink.socket_link.on('createValid', (res) => {
+      if (res.error) {
+        reject(res.error)
+      }
+      resolve(res)
+    })
+  })
+}
