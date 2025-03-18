@@ -11,6 +11,7 @@ declare module 'vue' {
     Button: typeof import('primevue/button')['default']
     ButtonGroup: typeof import('primevue/buttongroup')['default']
     FloatLabel: typeof import('primevue/floatlabel')['default']
+    InputOtp: typeof import('primevue/inputotp')['default']
     InputText: typeof import('primevue/inputtext')['default']
     Link: typeof import('./src/components/link.vue')['default']
     Login: typeof import('./src/components/login.vue')['default']

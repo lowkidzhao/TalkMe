@@ -1,3 +1,5 @@
+import 'v8-compile-cache'
+
 import { app, shell, BrowserWindow, ipcMain, desktopCapturer, session } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'

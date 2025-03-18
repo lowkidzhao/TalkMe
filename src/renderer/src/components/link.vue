@@ -2,9 +2,9 @@
   import { ref } from 'vue'
   import { useLinkStore } from '../store/useLinkStore'
   import { createLink } from '../socket/user.js'
-  import { useToast } from 'primevue/usetoast'
+  import { useAppToast } from '../utility/toast.js'
 
-  const toast = useToast() // 添加 toast 服务
+  const { success, errorT } = useAppToast()
   const linkStore = useLinkStore()
   const serverAddress = ref('114.132.41.169:1145')
   const serverType = ref('stun')
@@ -18,21 +18,10 @@
       linkStore.link = await createLink(serverAddress.value, serverType.value)
 
       console.log('服务器连接成功:', linkStore.link)
-      // 添加成功提示
-      toast.add({
-        severity: 'success',
-        summary: '连接成功',
-        detail: '已成功建立服务器连接',
-        life: 2000
-      })
+      success('连接成功', '已成功建立服务器连接')
     } catch (error) {
       console.error('连接错误:', error)
-      toast.add({
-        severity: 'error',
-        summary: '连接失败',
-        detail: error,
-        life: 2000
-      })
+      errorT('连接失败', error.message)
     } finally {
       isLoading.value = false
     }

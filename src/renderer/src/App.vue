@@ -8,13 +8,11 @@
 </script>
 
 <template>
-  <titlebar />
-  <div>
-    <div>
-      <Toast position="top-right" />
-      <linkView v-if="!LinkStore.link" />
-      <login />
-    </div>
+  <titlebar class="titlebar" />
+  <div class="main">
+    <Toast position="bottom-right" />
+    <linkView v-if="!LinkStore.link" />
+    <login />
   </div>
 </template>
 <style>
@@ -27,5 +25,15 @@
   .p-button:hover {
     background-color: rgb(175, 163, 152) !important;
     border-color: rgb(175, 163, 152) !important;
+  }
+  .titlebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+  }
+  .main {
+    margin-top: 40px;
   }
 </style>
