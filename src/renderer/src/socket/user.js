@@ -1,10 +1,10 @@
 import { io } from 'socket.io-client'
 import { initialization } from '../utility/webrtc'
 /**
- * 创建链接
- * @param {socket address} ip
- * @param {stun/turn} type
- * @returns socket与webrtc的复合对象
+ * 创建 WebSocket 与 WebRTC 的复合连接
+ * @param {string} url - WebSocket 服务器地址 (格式: "ip:port")
+ * @param {string} type - STUN/TURN 服务器类型
+ * @returns {Promise<Object>} 包含 socket_link 和 rtc_link 的复合连接对象
  */
 export async function createLink(url, type) {
   try {
@@ -42,10 +42,11 @@ export async function createLink(url, type) {
     throw error
   }
 }
+
 /**
- * 指定发送offer
- * @param {复合对象} douLink
- * @param {目标名字} name
+ * 主动发送 WebRTC offer 到指定用户
+ * @param {Object} douLink - 复合连接对象
+ * @param {string} name - 目标用户名
  */
 export async function Default_Send(douLink, name) {
   await douLink.rtc_link
@@ -68,8 +69,8 @@ export async function Default_Send(douLink, name) {
     })
 }
 /**
- * 接收offer
- * @param {复合对象} douLink
+ * 处理远端发来的 offer 请求
+ * @param {Object} douLink - 复合连接对象
  */
 function offer_get(douLink) {
   douLink.socket_link.on('offer_get', (data) => {
@@ -97,7 +98,7 @@ function offer_get(douLink) {
 }
 /**
  * 接收answer
- * @param {复合对象} douLink
+ * @param {Object} douLink - 复合连接对象
  */
 function answer_get(douLink) {
   douLink.socket_link.on('answer_get', (data) => {
@@ -106,10 +107,10 @@ function answer_get(douLink) {
   })
 }
 /**
- * 发送ice候选
- * @param {复合对象} douLink
- * @param {目标别名} name
- * @param {目标id} id
+ * 发送 ICE 候选信息
+ * @param {Object} douLink - 复合连接对象
+ * @param {string|null} name - 目标用户名（主动发起时使用）
+ * @param {string|null} id - 目标连接ID（被动响应时使用）
  */
 function IceCandidate_event(douLink, name, id) {
   douLink.rtc_link.onicecandidate = (event) => {
@@ -124,7 +125,7 @@ function IceCandidate_event(douLink, name, id) {
 }
 /**
  * 接收ice候选
- * @param {复合对象} douLink
+ * @param {Object} douLink - 复合连接对象
  */
 function icecandidate_get(douLink) {
   douLink.socket_link.on('remote-icecandidate', (precandidate) => {
@@ -134,8 +135,8 @@ function icecandidate_get(douLink) {
 }
 /**
  * 增加数据流
- * @param {复合对象} douLink
- * @param {视频流} stream
+ * @param {Object} douLink - 复合连接对象
+ * @param {stream} stream - 数据流
  */
 export function AddStream(douLink, stream) {
   try {
@@ -150,8 +151,8 @@ export function AddStream(douLink, stream) {
 
 /**
  * 获取数据流
- * @param {复合对象} douLink
- * @returns 接受的数据流
+ * @param {Object} douLink - 复合连接对象
+ * @returns {stream} - 接受的数据流
  */
 export function GetStream(douLink) {
   return new Promise((resolve, reject) => {
@@ -182,7 +183,7 @@ export function GetStream(douLink) {
 
 /**
  * 获取用户信息
- * @param {复合对象} douLink
+ * @param {Object} douLink - 复合连接对象
  */
 export function GetUserInfo(douLink) {
   return new Promise((resolve) => {
@@ -201,9 +202,9 @@ export function GetUserInfo(douLink) {
 // }
 /**
  * 注册
- * @param {复合对象} douLink
- * @param {注册数据} data
- * @returns 结果
+ * @param {Object} douLink - 复合连接对象
+ * @param {Object} data - 注册数据
+ * @returns {Promise} 注册结果
  */
 export function Register(douLink, data) {
   return new Promise((resolve, reject) => {
@@ -218,9 +219,9 @@ export function Register(douLink, data) {
 }
 /**
  * 登录
- * @param {复合对象} douLink
- * @param {登录数据} data
- * @returns 结果
+ * @param {Object} douLink - 复合连接对象
+ * @param {Object} data - 登录数据
+ * @returns {Promise} 登录结果
  */
 export function Login(douLink, data) {
   return new Promise((resolve, reject) => {
@@ -234,6 +235,12 @@ export function Login(douLink, data) {
   })
 }
 
+/**
+ * 创建验证码
+ * @param {Object} douLink - 复合连接对象
+ * @param {Object} data - 需要验证的数据
+ * @returns {Promise<Object>} 结果
+ */
 export function CreateValid(douLink, data) {
   return new Promise((resolve, reject) => {
     douLink.socket_link.emit('createValid', data)

@@ -8,8 +8,8 @@ import icon from '../../resources/icon.png?asset'
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 600,
+    width: 1100,
+    height: 680,
     frame: false, // 添加这行隐藏标题栏和边框
     titleBarStyle: 'hidden', // 针对 macOS 的额外设置
     show: false,

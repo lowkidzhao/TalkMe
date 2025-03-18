@@ -1,7 +1,8 @@
 import config from '../../../config/TM_config.json'
 /**
- *  初始化
- * @param {网络类型} type
+ * 初始化 WebRTC 连接
+ * @param {string} type - 服务器类型 ('stun' 或 'turn')
+ * @returns {Promise<RTCPeerConnection>} 初始化的 WebRTC 连接实例
  */
 export async function initialization(type) {
   try {
@@ -15,9 +16,9 @@ export async function initialization(type) {
   }
 }
 /**
- * 添加视频流
- * @param {实例} pc
- * @param {视频流} stream
+ * 为 WebRTC 连接添加媒体流
+ * @param {RTCPeerConnection} pc - WebRTC 连接实例
+ * @param {MediaStream} stream - 需要添加的媒体流
  */
 export function AddStream(pc, stream) {
   for (const track of stream.getTracks()) {
@@ -26,10 +27,10 @@ export function AddStream(pc, stream) {
   console.log(pc)
 }
 /**
- * 配置文件读取
- * @param {配置文件} config
- * @param {协议类型} type
- * @returns
+ * 生成 ICE 服务器配置
+ * @param {Object} config - 基础配置信息
+ * @param {string} type - 服务器类型 ('stun' 或 'turn')
+ * @returns {RTCConfiguration} 包含 ICE 服务器和传输策略的配置对象
  */
 function iceServers(config, type) {
   // 在现有配置基础上添加网络约束
@@ -42,11 +43,15 @@ function iceServers(config, type) {
     rtcpMuxPolicy: 'require'
   }
 }
-
 /**
- * 获取状态
- * @param {实例} pc
- * @returns 字符串
+ * 获取 WebRTC 连接状态信息
+ * @param {RTCPeerConnection} pc - WebRTC 连接实例
+ * @returns {Promise<Object>} 包含以下属性的状态对象：
+ *   - iceState: ICE 连接状态
+ *   - connectionState: 整体连接状态
+ *   - remoteIP: 远程 IP 地址（逗号分隔）
+ *   - localIP: 本地 IP 地址（逗号分隔）
+ *   - protocol: 使用的协议类型
  */
 export async function GetState(pc) {
   const connectionInfo = {
@@ -79,20 +84,10 @@ export async function GetState(pc) {
   }
 }
 
-// new
-// 表示至少有一个 ICE 连接（RTCIceTransport 或 RTCDtlsTransport 对象）处于 new 状态，并且没有连接处于以下状态： connecting、checking、failed、disconnected，或者这些连接都处于 closed 状态。
-
-// connecting
-// 表示至少有一个 ICE 连接处于正在建立连接的状态；也就是说，它们的 iceConnectionState 值为 checking 或 connected，并且没有连接处于 failed 状态。
-
-// connected
-// 表示每一个 ICE 连接要么正在使用（connected 或 completed 状态），要么已被关闭（closed 状态）；并且，至少有一个连接处于 connected 或 completed 状态。
-
-// disconnected
-// 表示至少有一个 ICE 连接处于 disconnected 状态，并且没有连接处于 failed、connecting 或 checking 状态。
-
-// failed
-// 表示至少有一个 ICE 连接处于 failed 的状态。
-
-// closed
-// 表示 RTCPeerConnection 已关闭。
+/* ICE 连接状态说明：
+new        - 初始状态，无连接活动
+connecting - 正在建立连接
+connected  - 至少有一个连接成功
+disconnected - 部分连接断开
+failed     - 所有连接尝试失败
+closed     - 连接已完全关闭 */

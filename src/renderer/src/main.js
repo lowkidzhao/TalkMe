@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia' // 新增 Pinia 导入
+import router from './router'
 import App from './App.vue'
 import './assets/global.css'
 import PrimeVue from 'primevue/config'
@@ -12,6 +13,7 @@ const pinia = createPinia() // 创建 Pinia 实例
 app
   .use(pinia) // 先安装 Pinia
   .use(ToastService)
+  .use(router)
   .use(PrimeVue, {
     ripple: false,
     theme: {
