@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Alluser: typeof import('./src/components/alluser.vue')['default']
     Button: typeof import('primevue/button')['default']
     ButtonGroup: typeof import('primevue/buttongroup')['default']
     FloatLabel: typeof import('primevue/floatlabel')['default']
@@ -16,9 +17,16 @@ declare module 'vue' {
     Link: typeof import('./src/components/link.vue')['default']
     Login: typeof import('./src/components/login.vue')['default']
     Register: typeof import('./src/components/register.vue')['default']
+    Room: typeof import('./src/components/room.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Select: typeof import('primevue/select')['default']
+    Step: typeof import('primevue/step')['default']
+    StepList: typeof import('primevue/steplist')['default']
+    StepPanel: typeof import('primevue/steppanel')['default']
+    StepPanels: typeof import('primevue/steppanels')['default']
+    Stepper: typeof import('primevue/stepper')['default']
+    Timeline: typeof import('primevue/timeline')['default']
     Titlebar: typeof import('./src/components/titlebar.vue')['default']
     Toast: typeof import('primevue/toast')['default']
   }

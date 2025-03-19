@@ -1,9 +1,10 @@
 <script setup>
-  import { ref } from 'vue'
+  import { ref, defineEmits } from 'vue'
   import { useLinkStore } from '../store/useLinkStore'
   import { createLink } from '../socket/user.js'
   import { useAppToast } from '../utility/toast.js'
 
+  const emit = defineEmits(['message'])
   const { success, errorT } = useAppToast()
   const linkStore = useLinkStore()
   const serverAddress = ref('114.132.41.169:1145')
@@ -19,6 +20,7 @@
 
       console.log('服务器连接成功:', linkStore.link)
       success('连接成功', '已成功建立服务器连接')
+      emit('message', true)
     } catch (error) {
       console.error('连接错误:', error)
       errorT('连接失败', error.message)

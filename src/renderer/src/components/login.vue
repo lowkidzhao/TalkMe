@@ -5,12 +5,12 @@
   import { useAppToast } from '../utility/toast.js'
   import { Form } from '@primevue/forms'
   import { yupResolver } from '@primevue/forms/resolvers/yup'
-  import { Register, CreateValid } from '../socket/user.js'
+  import { Login } from '../socket/user.js'
 
-  const emit = defineEmits(['jump'])
+  const emit = defineEmits(['message2', 'jump'])
   const { success, errorT } = useAppToast()
   const linkStore = useLinkStore()
-  const data = ref({ name: '', password: '', email: '', code: '' })
+  const data = ref({ name: '', password: '' })
   const schema = yup.object({
     name: yup
       .string()
@@ -21,29 +21,10 @@
       .string()
       .required('密码不能为空')
       .min(8, '密码至少8个字符')
-      .max(20, '密码不能超过20个字符'),
-    email: yup.string().required('邮箱不能为空').email('请输入有效的邮箱地址')
+      .max(20, '密码不能超过20个字符')
   })
   const resolver = yupResolver(schema)
   const isLoading = ref(false)
-  const codeNeed = ref(false)
-  /**
-   * 发送验证码
-   */
-  const sendVerificationCode = () => {
-    if (!linkStore.link) {
-      errorT('错误', '未连接服务器')
-      return
-    }
-    CreateValid(linkStore.link, data.value)
-      .then((res) => {
-        codeNeed.value = true
-        success('成功', res.message)
-      })
-      .catch((error) => {
-        errorT('错误', error)
-      })
-  }
   /**
    * 处理表单提交
    * @param {Object} event - 表单提交事件对象
@@ -61,14 +42,13 @@
         return
       }
       isLoading.value = true
-      codeNeed.value = false
       console.log(event.values)
 
-      Register(linkStore.link, data.value)
+      Login(linkStore.link, data.value)
         .then((res) => {
           isLoading.value = false
           success('成功', res.message)
-          emit('jump', 'login')
+          emit('message2', true)
         })
         .catch((error) => {
           isLoading.value = false
@@ -77,7 +57,7 @@
     }
   }
   const jump = () => {
-    emit('jump', 'login')
+    emit('jump', 'register')
   }
 </script>
 <template>
@@ -108,27 +88,8 @@
           :disabled="isLoading"
         />
       </div>
-      <div class="flex flex-col gap-1">
-        <InputText
-          name="email"
-          type="text"
-          v-model="data.email"
-          placeholder="邮箱"
-          fluid
-          :disabled="isLoading"
-        />
-      </div>
-      <div class="flex flex-col gap-1">
-        <InputOtp name="code" v-model="data.code" :disabled="isLoading" :length="4" />
-      </div>
-      <Button
-        type="button"
-        label="获取验证码"
-        :disabled="isLoading"
-        @click="sendVerificationCode"
-      />
-      <Button type="submit" :disabled="isLoading || !codeNeed" label="注册" />
-      <Button label="返回" @click="jump" />
+      <Button type="submit" :disabled="isLoading" label="登录" />
+      <Button label="注册" @click="jump" />
     </Form>
   </div>
 </template>
