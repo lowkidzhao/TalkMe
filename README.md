@@ -11,25 +11,32 @@
 ## 核心架构
 
 ```plaintext
-e:/WorkSpace/VsCodeWorkSpace/talkme/talk_me/
+talk_me/
 ├── electron.vite.config.mjs   # Electron-Vite 主构建配置
 ├── electron-builder.yml       # 多平台打包配置
 ├── src/
 │   ├── main/                  # 主进程代码
-│   │   └── index.js           # 主进程入口（IPC通信/窗口管理）
+│   │   └── index.mjs          # 主进程入口（IPC通信/窗口管理）
 │   ├── preload/               # 预加载脚本
-│   │   └── index.js           # 安全隔离上下文
+│   │   └── index.mjs          # 安全隔离上下文
 │   └── renderer/              # 渲染进程
 │       ├── src/
 │       │   ├── App.vue        # 根组件
 │       │   ├── main.js        # 渲染进程入口（Vue初始化）
+│       │   ├── assets/        # 静态资源
 │       │   ├── components/    # Vue 组件
+│       │   ├── router/        # 路由配置
+│       │   ├── store/         # Pinia 状态管理
 │       │   ├── socket/        # Socket.io 通信模块
-│       │   └── utility/       # WebRTC 工具库
-├── build/                     # 打包资源
+│       │   ├── utility/       # 工具库
+│       │   │   ├── toast.js   # 通知工具
+│       │   │   └── webrtc.js  # WebRTC 工具
+│       │   └── view/          # 页面组件
+│       └────── public/        # 公共资源
+├── build/                     # 打包资源配置
 │   ├── entitlements.mac.plist # macOS 签名配置
-│   └── icon.icns             # 应用图标
-├── resources/                 # 静态资源目录
+│   └── icon.icns              # 应用图标
+├── resources/                 # 安装程序资源
 └── package.json               # 项目核心配置
 ```
 
@@ -85,23 +92,21 @@ $ pnpm build:unpack
 
 ```bash
 使用socket.io进行通信
-使用winston进行日志记录
 ```
-
-### 日志等级对照表
-
-- silly: 调试细节
-- debug: 开发调试信息
-- verbose: 详细运行信息
-- info: 常规信息 (默认生产环境级别)
-- http: HTTP 请求日志
-- warn: 警告信息
-- error: 可恢复的错误
 
 ### 页面
 
 ```1c
-单页面模式 -----  一次挂载所有组件，使用IPC通信
+# 连接页
+
+连接服务器 ---- 连接服务器
+登录 ---- 登录
+注册 ---- 注册
+
+# 主页面
+
+用户 ---- 显示所有用户
+房间 ---- 显示所有房间/创建房间/加入房间
 ```
 
 ### 组件

@@ -209,7 +209,7 @@ export function GetUserInfo(douLink) {
 export function Register(douLink, data) {
   return new Promise((resolve, reject) => {
     douLink.socket_link.emit('register', data)
-    douLink.socket_link.on('register', (res) => {
+    douLink.socket_link.once('register', (res) => {
       if (res.error) {
         reject(res.error)
       }
@@ -226,7 +226,7 @@ export function Register(douLink, data) {
 export function Login(douLink, data) {
   return new Promise((resolve, reject) => {
     douLink.socket_link.emit('login', data)
-    douLink.socket_link.on('login', (res) => {
+    douLink.socket_link.once('login', (res) => {
       if (res.error) {
         reject(res.error)
       }
@@ -244,11 +244,49 @@ export function Login(douLink, data) {
 export function CreateValid(douLink, data) {
   return new Promise((resolve, reject) => {
     douLink.socket_link.emit('createValid', data)
-    douLink.socket_link.on('createValid', (res) => {
+    douLink.socket_link.once('createValid', (res) => {
       if (res.error) {
         reject(res.error)
       }
       resolve(res)
     })
   })
+}
+/**
+ * 获取所有用户
+ * @param {Object} douLink - 复合连接对象
+ * @returns {Promise<Object>} 结果
+ */
+export function GetAll(douLink) {
+  return new Promise((resolve, reject) => {
+    douLink.socket_link.emit('getAll')
+    douLink.socket_link.once('getAll', (res) => {
+      if (res.error) {
+        reject(res.error)
+      }
+      resolve(res)
+    })
+  })
+}
+/**
+ * 实时监听在线用户列表变化
+ * @param {Object} douLink - 包含 socket 和 WebRTC 连接的复合对象
+ * @param {Function} callback - 接收更新的回调函数（错误优先模式）
+ * @returns {Function} 取消监听的清理函数
+ */
+export function OnlineUsers(douLink, callback) {
+  // 添加回调参数
+  const handler = (res) => {
+    if (res.error) {
+      callback(res.error, null)
+    } else {
+      callback(null, res)
+    }
+  }
+  // 注册持久监听
+  douLink.socket_link.on('onlineUsers', handler)
+  // 返回取消监听的方法
+  return () => {
+    douLink.socket_link.off('onlineUsers', handler)
+  }
 }
