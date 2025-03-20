@@ -1,11 +1,13 @@
 /* 新增 PrimeIcons 导入 */
-@import 'primeicons/primeicons.css';
 @import 'tailwindcss';
+@import 'primeicons/primeicons.css';
+
 * {
   padding: 0;
   margin: 0;
   box-sizing: border-box;
   font-size: 17px;
+  /* background: transparent !important; */
 }
 
 a {
@@ -26,4 +28,14 @@ a:active {
 }
 ::-webkit-scrollbar {
   display: none;
+}
+/* 修改所有 PrimeVue 组件背景 */
+button.p-button:not([disabled]) {
+  background-color: rgba(238, 230, 219, 0.932) !important;
+  color: #333 !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+button.p-button:hover:not([disabled]) {
+  background-color: rgba(210, 200, 185, 0.932) !important;
 }

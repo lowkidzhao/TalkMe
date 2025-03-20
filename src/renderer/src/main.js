@@ -4,7 +4,7 @@ import router from './router'
 import App from './App.vue'
 import './assets/global.css'
 import PrimeVue from 'primevue/config'
-import Material from '@primeuix/themes/material' // 改用官方标准主题包
+import Lara from '@primeuix/themes/lara' // 改用官方标准主题包
 import ToastService from 'primevue/toastservice'
 
 const app = createApp(App)
@@ -17,10 +17,12 @@ app
   .use(PrimeVue, {
     ripple: false,
     theme: {
-      preset: Material,
+      preset: Lara,
       options: {
         prefix: 'p',
         darkModeSelector: 'system',
+        colorScheme: 'light', // 明确定义颜色方案
+        presetTheme: 'blue', // 指定蓝色系配色
         cssLayer: false
       }
     }

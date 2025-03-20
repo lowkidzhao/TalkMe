@@ -35,23 +35,15 @@
 </script>
 
 <template>
-  <titlebar class="titlebar" />
-  <div class="main">
-    <Toast position="bottom-right" />
-    <router-view> </router-view>
+  <div class="ALL">
+    <titlebar class="titlebar" />
+    <div class="main">
+      <Toast position="bottom-right" />
+      <router-view> </router-view>
+    </div>
   </div>
 </template>
 <style>
-  .p-button {
-    background-color: rgba(238, 230, 219, 0.932) !important;
-    border-color: rgba(238, 230, 219, 0.932) !important;
-    color: #333 !important; /* 修改文字颜色为深色增加对比度 */
-  }
-
-  .p-button:hover {
-    background-color: rgb(175, 163, 152) !important;
-    border-color: rgb(175, 163, 152) !important;
-  }
   .titlebar {
     position: fixed;
     top: 0;
@@ -61,6 +53,9 @@
     height: 40px;
   }
   .main {
+    background: url('../../../resources/index.jpg');
+    background-size: cover; /* 添加图片缩放模式 */
+    background-position: center; /* 添加图片居中 */
     margin-top: 30px;
     height: calc(100vh - 30px);
     overflow: auto;

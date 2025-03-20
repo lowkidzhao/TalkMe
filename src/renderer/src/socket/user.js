@@ -193,13 +193,23 @@ export function GetUserInfo(douLink) {
     })
   })
 }
+/**
+ * 断开连接
+ * @param {Object} douLink - 包含 socket 和 WebRTC 连接的复合对象
+ */
+export function closeLink(douLink) {
+  if (douLink) {
+    // 关闭 WebSocket 连接
+    if (douLink.socket_link?.connected) {
+      douLink.socket_link.disconnect()
+    }
+    // 关闭 WebRTC 连接
+    if (douLink.rtc_link) {
+      douLink.rtc_link.close()
+    }
+  }
+}
 
-// /**
-//  * 关闭链接
-// function close(douLink) {
-//   douLink.socket_link.close()
-//   douLink.rtc_link.close()
-// }
 /**
  * 注册
  * @param {Object} douLink - 复合连接对象

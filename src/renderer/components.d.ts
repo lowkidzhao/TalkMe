@@ -32,5 +32,6 @@ declare module 'vue' {
     Stepper: typeof import('primevue/stepper')['default']
     Titlebar: typeof import('./src/components/titlebar.vue')['default']
     Toast: typeof import('primevue/toast')['default']
+    ToggleSwitch: typeof import('primevue/toggleswitch')['default']
   }
 }

@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, defineEmits } from 'vue'
+  import { ref, onMounted, nextTick } from 'vue'
   import * as yup from 'yup'
   import { useLinkStore } from '../store/useLinkStore.js'
   import { useAppToast } from '../utility/toast.js'
@@ -9,6 +9,7 @@
 
   const emit = defineEmits(['message2', 'jump'])
   const { success, errorT } = useAppToast()
+  const checked = ref(false)
   const linkStore = useLinkStore()
   const data = ref({ name: '', password: '' })
   const schema = yup.object({
@@ -47,8 +48,9 @@
       Login(linkStore.link, data.value)
         .then((res) => {
           isLoading.value = false
-          success('成功', res.message)
+          success(res.message)
           emit('message2', true)
+          localStorage.setItem('user', JSON.stringify(data.value))
         })
         .catch((error) => {
           isLoading.value = false
@@ -59,10 +61,26 @@
   const jump = () => {
     emit('jump', 'register')
   }
+
+  // 新增表单引用
+  const formRef = ref(null)
+  onMounted(() => {
+    const user = localStorage.getItem('user')
+    if (user) {
+      data.value = JSON.parse(user)
+      checked.value = true
+    }
+    nextTick(() => {
+      if (formRef.value) {
+        formRef.value.reset()
+      }
+    })
+  })
 </script>
 <template>
   <div class="mian">
     <Form
+      ref="formRef"
       :initial-values="data"
       :resolver="resolver"
       @submit="handleSubmit"
@@ -87,6 +105,10 @@
           fluid
           :disabled="isLoading"
         />
+      </div>
+      <div class="flex items-center gap-2">
+        <ToggleSwitch v-model="checked"></ToggleSwitch>
+        <span>记住我</span>
       </div>
       <Button type="submit" :disabled="isLoading" label="登录" />
       <Button label="注册" @click="jump" />

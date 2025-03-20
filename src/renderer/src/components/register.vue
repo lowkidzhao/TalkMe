@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, defineEmits } from 'vue'
+  import { ref } from 'vue'
   import * as yup from 'yup'
   import { useLinkStore } from '../store/useLinkStore.js'
   import { useAppToast } from '../utility/toast.js'
@@ -38,7 +38,7 @@
     CreateValid(linkStore.link, data.value)
       .then((res) => {
         codeNeed.value = true
-        success('成功', res.message)
+        success(res.message)
       })
       .catch((error) => {
         errorT('错误', error)
@@ -67,7 +67,7 @@
       Register(linkStore.link, data.value)
         .then((res) => {
           isLoading.value = false
-          success('成功', res.message)
+          success(res.message)
           emit('jump', 'login')
         })
         .catch((error) => {

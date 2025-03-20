@@ -39,7 +39,7 @@
   })
 </script>
 <template>
-  <div>
+  <div class="all">
     <Stepper :value="currentStep" linear>
       <StepList>
         <Step value="1">连接服务器 </Step>
@@ -47,12 +47,12 @@
         <Step value="3">进入</Step>
       </StepList>
       <StepPanels>
-        <StepPanel value="1">
+        <StepPanel value="1" class="transparent-panel">
           <div class="flex flex-col h-48 justify-center items-center">
             <Link @message="result" />
           </div>
         </StepPanel>
-        <StepPanel value="2">
+        <StepPanel value="2" class="transparent-panel">
           <div class="flex flex-col h-48 items-center">
             <Login v-if="show" @message2="result2" @jump="jump" />
             <Register v-if="!show" @jump="jump" />
@@ -61,11 +61,27 @@
             <Button label="上一步" severity="secondary" icon="pi pi-arrow-left" @click="activate" />
           </div>
         </StepPanel>
-        <StepPanel value="3">
+        <StepPanel value="3" class="transparent-panel">
           <div class="flex flex-col h-48">欢迎</div>
         </StepPanel>
       </StepPanels>
     </Stepper>
   </div>
 </template>
-<style scoped></style>
+<style scoped>
+  .all {
+    background: transparent;
+  }
+  /* 新增穿透样式 */
+  :deep(.transparent-stepper) .p-stepper-panel {
+    background: transparent !important;
+  }
+
+  :deep(.transparent-panel) {
+    background: transparent !important;
+  }
+
+  :deep(.p-floatlabel) {
+    background: transparent !important;
+  }
+</style>

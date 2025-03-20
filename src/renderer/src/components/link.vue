@@ -1,7 +1,7 @@
 <script setup>
-  import { ref, defineEmits } from 'vue'
+  import { ref } from 'vue'
   import { useLinkStore } from '../store/useLinkStore'
-  import { createLink } from '../socket/user.js'
+  import { createLink, closeLink } from '../socket/user.js'
   import { useAppToast } from '../utility/toast.js'
 
   const emit = defineEmits(['message'])
@@ -14,12 +14,20 @@
   const handleConnect = async () => {
     try {
       isLoading.value = true
-
+      // 新增：关闭已有连接
+      if (linkStore.link) {
+        try {
+          closeLink(linkStore.link)
+        } catch (err) {
+          console.warn('关闭旧连接时发生警告:', err)
+        }
+        linkStore.link = null // 清空存储
+      }
       // 创建连接并存储到全局状态
       linkStore.link = await createLink(serverAddress.value, serverType.value)
 
       console.log('服务器连接成功:', linkStore.link)
-      success('连接成功', '已成功建立服务器连接')
+      success('已成功建立服务器连接')
       emit('message', true)
     } catch (error) {
       console.error('连接错误:', error)
