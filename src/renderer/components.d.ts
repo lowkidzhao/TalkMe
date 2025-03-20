@@ -9,7 +9,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     Alluser: typeof import('./src/components/alluser.vue')['default']
-    Avatar: typeof import('primevue/avatar')['default']
     Badge: typeof import('primevue/badge')['default']
     Button: typeof import('primevue/button')['default']
     ButtonGroup: typeof import('primevue/buttongroup')['default']
@@ -31,7 +30,6 @@ declare module 'vue' {
     StepPanel: typeof import('primevue/steppanel')['default']
     StepPanels: typeof import('primevue/steppanels')['default']
     Stepper: typeof import('primevue/stepper')['default']
-    Timeline: typeof import('primevue/timeline')['default']
     Titlebar: typeof import('./src/components/titlebar.vue')['default']
     Toast: typeof import('primevue/toast')['default']
   }

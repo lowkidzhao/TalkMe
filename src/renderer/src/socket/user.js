@@ -290,3 +290,19 @@ export function OnlineUsers(douLink, callback) {
     douLink.socket_link.off('onlineUsers', handler)
   }
 }
+/**
+ * 获取当前在线用户列表
+ * @param {Object} douLink - 包含 socket 和 WebRTC 连接的复合对象
+ * @returns {Promise<Object>} 返回包含在线用户数据的 Promise 对象
+ */
+export function GetOnlineUsers(douLink) {
+  return new Promise((resolve, reject) => {
+    douLink.socket_link.emit('onlineUsers')
+    douLink.socket_link.once('onlineUsers', (res) => {
+      if (res.error) {
+        reject(res.error)
+      }
+      resolve(res)
+    })
+  })
+}

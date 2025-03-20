@@ -1,6 +1,6 @@
 <script setup>
   import { ref, onMounted, onUnmounted, computed } from 'vue'
-  import { GetAll } from '../socket/user.js'
+  import { GetAll, GetOnlineUsers } from '../socket/user.js'
   import { useAppToast } from '../utility/toast.js'
   import { useLinkStore } from '../store/useLinkStore.js'
   import { useUserStore } from '../store/useUserStore.js'
@@ -34,6 +34,14 @@
 
   onMounted(() => {
     if (linkStore.link) {
+      GetOnlineUsers(linkStore.link)
+        .then((res) => {
+          userStore.online = res
+        })
+        .catch((err) => {
+          errorT('获取失败')
+          console.log(err)
+        })
       getAll()
       refreshInterval.value = setInterval(() => {
         if (linkStore.link) getAll()
@@ -50,7 +58,7 @@
 <template>
   <div class="user-list-container">
     <ScrollPanel style="width: 230px; height: 400px">
-      <DataTable :value="userStore.users" stripedRows class="p-datatable-sm">
+      <DataTable :value="userStore.users" class="p-datatable-sm">
         <Column field="username" header="用户列表">
           <template #body="{ data }">
             <div class="user-item">
@@ -69,13 +77,20 @@
 </template>
 <style scoped>
   .user-list-container {
-    padding: 1rem;
+    width: fit-content;
+    /* padding: 1rem; */
+    background-color: rgba(238, 230, 219, 0.932); /* 添加浅灰色背景 */
+    border-radius: 8px; /* 圆角效果 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加阴影 */
   }
 
   .user-item {
     display: flex;
     align-items: center;
     padding: 0.5rem 0;
+    background: rgba(238, 230, 219, 0.932); /* 半透明白色背景 */
+    border-radius: 4px; /* 行圆角 */
+    margin: 2px 0; /* 增加行间距 */
   }
 
   .status-badge {
@@ -90,6 +105,22 @@
   /* 添加表格样式 */
   :deep(.p-datatable) {
     border: none;
+    background: transparent;
+    /* 新增表格行背景色 */
+    .p-datatable-tbody tr {
+      background: rgba(238, 230, 219, 0.932) !important;
+    }
+
+    /* 修改表头背景 */
+    .p-datatable-thead {
+      tr {
+        background: rgba(238, 230, 219, 0.932) !important;
+        th {
+          background: transparent !important;
+          border-color: rgba(0, 0, 0, 0.1) !important;
+        }
+      }
+    }
   }
 
   :deep(.p-datatable .p-datatable-header) {

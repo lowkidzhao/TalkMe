@@ -27,7 +27,7 @@
     justify-content: space-between;
     -webkit-app-region: drag;
     height: 30px;
-    background-color: rgb(245, 236, 225);
+    background-color: rgba(238, 230, 219, 0.932);
   }
   .title {
     display: flex;
@@ -42,8 +42,8 @@
   }
   .p-button-secondary {
     width: 40px;
-    background-color: rgb(245, 236, 225);
-    border: rgb(245, 236, 225);
+    background-color: rgba(238, 230, 219, 0.932);
+    border: rgba(238, 230, 219, 0.932);
     color: var(--p-button-secondary-color);
   }
   .p-button-secondary:hover {

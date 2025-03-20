@@ -3,9 +3,20 @@
   import Room from '../components/room.vue'
 </script>
 <template>
-  <div>
-    <Alluser />
+  <div class="ShowAll">
+    <Alluser class="users" />
     <Room />
   </div>
 </template>
-<style scoped></style>
+<style scoped>
+  .ShowAll {
+    width: 100%;
+    height: 100%;
+    /* background-color: antiquewhite; */
+  }
+  .users {
+    position: fixed;
+    right: 0px;
+    top: 30px;
+  }
+</style>

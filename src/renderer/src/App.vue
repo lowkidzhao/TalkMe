@@ -43,8 +43,8 @@
 </template>
 <style>
   .p-button {
-    background-color: rgb(245, 236, 225) !important;
-    border-color: rgb(245, 236, 225) !important;
+    background-color: rgba(238, 230, 219, 0.932) !important;
+    border-color: rgba(238, 230, 219, 0.932) !important;
     color: #333 !important; /* 修改文字颜色为深色增加对比度 */
   }
 
@@ -58,8 +58,11 @@
     left: 0;
     width: 100%;
     z-index: 1000;
+    height: 40px;
   }
   .main {
-    margin-top: 40px;
+    margin-top: 30px;
+    height: calc(100vh - 30px);
+    overflow: auto;
   }
 </style>
