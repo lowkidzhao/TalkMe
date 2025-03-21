@@ -11,7 +11,6 @@ declare module 'vue' {
     Alluser: typeof import('./src/components/alluser.vue')['default']
     Badge: typeof import('primevue/badge')['default']
     Button: typeof import('primevue/button')['default']
-    ButtonGroup: typeof import('primevue/buttongroup')['default']
     Column: typeof import('primevue/column')['default']
     DataTable: typeof import('primevue/datatable')['default']
     FloatLabel: typeof import('primevue/floatlabel')['default']
@@ -19,6 +18,7 @@ declare module 'vue' {
     InputText: typeof import('primevue/inputtext')['default']
     Link: typeof import('./src/components/link.vue')['default']
     Login: typeof import('./src/components/login.vue')['default']
+    Menubar: typeof import('primevue/menubar')['default']
     Register: typeof import('./src/components/register.vue')['default']
     Room: typeof import('./src/components/room.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
@@ -33,5 +33,8 @@ declare module 'vue' {
     Titlebar: typeof import('./src/components/titlebar.vue')['default']
     Toast: typeof import('primevue/toast')['default']
     ToggleSwitch: typeof import('primevue/toggleswitch')['default']
+  }
+  export interface ComponentCustomProperties {
+    Tooltip: typeof import('primevue/tooltip')['default']
   }
 }

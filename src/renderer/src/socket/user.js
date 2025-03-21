@@ -316,3 +316,201 @@ export function GetOnlineUsers(douLink) {
     })
   })
 }
+/**
+ * 获取所有房间信息
+ * @param {Object} douLink - 复合连接对象
+ * @returns {Promise<Object>} 包含房间列表的结果
+ */
+export function GetRoom(douLink) {
+  return new Promise((resolve, reject) => {
+    douLink.socket_link.emit('getAllroom')
+    douLink.socket_link.once('getAllroom', (res) => {
+      if (res.error) {
+        reject(res.error)
+      }
+      resolve(res)
+    })
+  })
+}
+
+/**
+ * 创建新房间
+ * @param {Object} douLink - 复合连接对象
+ * @param {Object} data - 房间数据
+ * @returns {Promise<Object>} 创建结果
+ */
+export function NewRoom(douLink, data) {
+  return new Promise((resolve, reject) => {
+    douLink.socket_link.emit('newroom', data)
+    douLink.socket_link.once('newroom', (res) => {
+      if (res.error) {
+        reject(res.error)
+      }
+      resolve(res.success)
+    })
+  })
+}
+
+/**
+ * 删除房间
+ * @param {Object} douLink - 复合连接对象
+ * @param {Object} data - 要删除的房间数据
+ * @returns {Promise<Object>} 删除结果
+ */
+export function DeleteRoom(douLink, data) {
+  return new Promise((resolve, reject) => {
+    douLink.socket_link.emit('deleteroom', data)
+    douLink.socket_link.once('deleteroom', (res) => {
+      if (res.error) {
+        reject(res.error)
+      }
+      resolve(res)
+    })
+  })
+}
+
+/**
+ * 加入房间
+ * @param {Object} douLink - 复合连接对象
+ * @param {Object} data - 要加入的房间数据
+ * @returns {Promise<Object>} 加入结果
+ */
+export function JoinRoom(douLink, data) {
+  return new Promise((resolve, reject) => {
+    douLink.socket_link.emit('joinroom', data)
+    douLink.socket_link.once('joinroom', (res) => {
+      if (res.error) {
+        reject(res.error)
+      }
+      resolve(res.success)
+    })
+  })
+}
+
+/**
+ * 离开房间
+ * @param {Object} douLink - 复合连接对象
+ * @param {Object} data - 要离开的房间数据
+ * @returns {Promise<Object>} 离开结果
+ */
+export function LeaveRoom(douLink, data) {
+  return new Promise((resolve, reject) => {
+    douLink.socket_link.emit('leaveroom', data)
+    douLink.socket_link.once('leaveroom', (res) => {
+      if (res.error) {
+        reject(res.error)
+      }
+      resolve(res.success)
+    })
+  })
+}
+
+/**
+ * 发送消息
+ * @param {Object} douLink - 复合连接对象
+ * @param {Object} data - 消息数据
+ * @returns {Promise<Object>} 发送结果
+ */
+export function Message(douLink, data) {
+  return new Promise((resolve, reject) => {
+    douLink.socket_link.emit('message', data)
+    douLink.socket_link.once('message', (res) => {
+      if (res.error) {
+        reject(res.error)
+      }
+      resolve(res.success)
+    })
+  })
+}
+
+/**
+ * 监听新消息
+ * @param {Object} douLink - 复合连接对象
+ * @param {Function} callback - 接收消息的回调函数（错误优先模式）
+ * @returns {Function} 取消监听的清理函数
+ */
+export function NewMessage(douLink, callback) {
+  const handler = (res) => {
+    if (res.error) {
+      callback(res.error, null)
+    } else {
+      callback(null, res)
+    }
+  }
+  douLink.socket_link.on('newmessage', handler)
+  return () => {
+    douLink.socket_link.off('newmessage', handler)
+  }
+}
+/**
+ * 获取历史消息
+ * @param {Object} douLink - 复合连接对象
+ * @returns {Promise<Object>} 包含历史消息的结果
+ */
+export function GetMessage(douLink) {
+  return new Promise((resolve, reject) => {
+    douLink.socket_link.emit('getmessage')
+    douLink.socket_link.once('getmessage', (res) => {
+      if (res.error) {
+        reject(res.error)
+      }
+      resolve(res.success)
+    })
+  })
+}
+
+/**
+ * 监听用户离开事件
+ * @param {Object} douLink - 复合连接对象
+ * @param {Function} callback - 接收离开通知的回调函数（错误优先模式）
+ * @returns {Function} 取消监听的清理函数
+ */
+export function User_left(douLink, callback) {
+  const handler = (res) => {
+    if (res.error) {
+      callback(res.error, null)
+    } else {
+      callback(null, res.success)
+    }
+  }
+  douLink.socket_link.on('user_left', handler)
+  return () => {
+    douLink.socket_link.off('user_left', handler)
+  }
+}
+/**
+ * 监听用户加入事件
+ * @param {Object} douLink - 复合连接对象
+ * @param {Function} callback - 接收加入通知的回调函数（错误优先模式）
+ * @returns {Function} 取消监听的清理函数
+ */
+export function User_join(douLink, callback) {
+  const handler = (res) => {
+    if (res.error) {
+      callback(res.error, null)
+    } else {
+      callback(null, res.success)
+    }
+  }
+  douLink.socket_link.on('user_join', handler)
+  return () => {
+    douLink.socket_link.off('user_join', handler)
+  }
+}
+/**
+ * 获取当前房间内的用户列表
+ * @param {Object} douLink - 复合连接对象
+ * @param {Object} data - 包含 roomId 的对象
+ * @returns {Promise<Object>} 包含房间用户列表的结果
+ */
+export function GetRoomUser(douLink, data) {
+  return new Promise((resolve, reject) => {
+    douLink.socket_link.emit('getRoomUsers', data)
+    douLink.socket_link.once('getRoomUsers', (res) => {
+      if (res.error) {
+        reject(res.error)
+      }
+      resolve(res.success)
+    })
+  })
+}

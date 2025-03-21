@@ -79,7 +79,7 @@
   .user-list-container {
     width: fit-content;
     /* padding: 1rem; */
-    background-color: rgba(238, 230, 219, 0.932); /* 添加浅灰色背景 */
+    background-color: rgba(238, 230, 219, 0.932, 0.8); /* 添加浅灰色背景 */
     border-radius: 8px; /* 圆角效果 */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* 添加阴影 */
   }
@@ -88,18 +88,13 @@
     display: flex;
     align-items: center;
     padding: 0.5rem 0;
-    background: rgba(238, 230, 219, 0.932); /* 半透明白色背景 */
+    background: rgba(238, 230, 219, 0.932, 0.8); /* 半透明白色背景 */
     border-radius: 4px; /* 行圆角 */
     margin: 2px 0; /* 增加行间距 */
   }
 
   .status-badge {
     margin-left: auto;
-  }
-
-  /* 保持原有滚动条样式 */
-  :deep(.p-scrollpanel) ::-webkit-scrollbar {
-    width: 8px;
   }
 
   /* 添加表格样式 */
