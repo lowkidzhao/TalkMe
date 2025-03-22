@@ -4,17 +4,17 @@
   import { useAppToast } from '../utility/toast.js'
   import { useRoomStore } from '../store/usrRoomStore'
   import { useLinkStore } from '../store/useLinkStore'
-  import { GetRoom, JoinRoom, DeleteRoom } from '../socket/user'
+  import { GetRoom, JoinRoom, LeaveRoom } from '../socket/user'
 
   const { success, errorT } = useAppToast()
   const router = useRouter()
   const roomStore = useRoomStore()
   const linkStore = useLinkStore()
 
-  const joinRoom = async (name) => {
-    JoinRoom(linkStore.link, { name: name, password: '' })
+  const joinRoom = async (data) => {
+    JoinRoom(linkStore.link, { name: data.name, password: '' })
       .then((res) => {
-        roomStore.currentRoom = name
+        roomStore.currentRoom = data
         console.log(res)
         success('加入房间成功')
       })
@@ -34,6 +34,17 @@
         errorT('获取房间失败')
       })
   }
+  const leaveRoom = async () => {
+    LeaveRoom(linkStore.link)
+      .then((res) => {
+        success(res)
+        roomStore.currentRoom = null
+      })
+      .catch((err) => {
+        console.log(err)
+        errorT('退出房间失败')
+      })
+  }
   onMounted(() => {
     getRoom()
   })
@@ -49,14 +60,19 @@
               <Button
                 icon="pi pi-sign-in"
                 severity="success"
-                @click="joinRoom(data.name)"
+                @click="joinRoom(data)"
                 v-tooltip="'加入房间'"
+              />
+              <Button
+                icon="pi pi-sign-out"
+                severity="success"
+                @click="leaveRoom()"
+                v-tooltip="'退出房间'"
               />
             </div>
           </template>
         </Column>
       </DataTable>
-      <Button @click="joinRoom">加入房间</Button>
       <Button @click="router.push('/')">返回</Button>
     </ScrollPanel>
   </div>

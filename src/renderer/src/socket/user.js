@@ -388,14 +388,13 @@ export function JoinRoom(douLink, data) {
 }
 
 /**
- * 离开房间
+ * 离开房间（自动检测并离开）
  * @param {Object} douLink - 复合连接对象
- * @param {Object} data - 要离开的房间数据
  * @returns {Promise<Object>} 离开结果
  */
-export function LeaveRoom(douLink, data) {
+export function LeaveRoom(douLink) {
   return new Promise((resolve, reject) => {
-    douLink.socket_link.emit('leaveroom', data)
+    douLink.socket_link.emit('leaveroom')
     douLink.socket_link.once('leaveroom', (res) => {
       if (res.error) {
         reject(res.error)
@@ -510,7 +509,7 @@ export function GetRoomUser(douLink, data) {
       if (res.error) {
         reject(res.error)
       }
-      resolve(res.success)
+      resolve(JSON.parse(res.success))
     })
   })
 }

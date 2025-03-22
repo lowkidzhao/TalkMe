@@ -19,7 +19,7 @@
       style: { 'font-weight': 'bold' }
     },
     {
-      label: `房间: ${roomStore.currentRoom ? roomStore.currentRoom : '未连接'}`,
+      label: `房间: ${roomStore.currentRoom ? roomStore.currentRoom.name : '未连接'}`,
       disabled: true,
       style: { 'font-weight': 'bold' }
     }

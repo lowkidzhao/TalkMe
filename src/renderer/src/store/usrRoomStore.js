@@ -6,6 +6,7 @@ export const useRoomStore = defineStore('rooms', () => {
   const rooms = ref([])
   const messages = ref([]) // 消息数组
   const currentRoom = ref(null) // 当前房间
+  const currentUser = ref(null) // 当前用户
   // 定义一个函数来更新 rooms 数组
-  return { rooms, messages, currentRoom }
+  return { rooms, messages, currentRoom, currentUser }
 })

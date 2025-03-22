@@ -8,6 +8,10 @@
   box-sizing: border-box;
   font-size: 17px;
   /* background: transparent !important; */
+  -webkit-user-select: none; /* 新增禁止文本选中 */
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 a {
@@ -38,4 +42,24 @@ button.p-button:not([disabled]) {
 
 button.p-button:hover:not([disabled]) {
   background-color: rgba(210, 200, 185, 0.932) !important;
+}
+/* 表格样式需要更具体的选择器 */
+.p-datatable {
+  background: rgba(238, 230, 219, 0.932) !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.p-datatable-thead > tr > th {
+  background: rgba(215, 204, 188, 0.932) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.p-datatable-tbody > tr > td {
+  background-color: rgba(238, 230, 219, 0.932) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.p-datatable-tbody > tr:hover > td {
+  background-color: rgba(215, 204, 188, 0.932) !important;
 }
