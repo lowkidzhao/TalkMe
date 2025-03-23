@@ -51,13 +51,13 @@
     padding: 10px;
     display: flex;
     flex-direction: column;
-    background-color: aliceblue;
+    /* background-color: aliceblue; */
   }
 
   .message {
     margin: 8px 0;
     padding: 8px;
-    background: rgba(201, 85, 85, 0.9);
+    background: rgba(177, 165, 165, 0.9);
     border-radius: 4px;
   }
 

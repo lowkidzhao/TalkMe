@@ -57,7 +57,7 @@
 </script>
 <template>
   <div class="user-list-container">
-    <ScrollPanel style="width: 230px; height: 400px">
+    <ScrollPanel style="width: 230px; height: 70vh">
       <DataTable :value="userStore.users" class="p-datatable-sm">
         <Column field="username" header="用户列表">
           <template #body="{ data }">
