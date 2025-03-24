@@ -1,13 +1,11 @@
 <script setup>
   import { ref, onMounted } from 'vue'
-  import { useRouter } from 'vue-router'
   import { useAppToast } from '../utility/toast.js'
   import { useRoomStore } from '../store/usrRoomStore'
   import { useLinkStore } from '../store/useLinkStore'
   import { GetRoom, JoinRoom, LeaveRoom } from '../socket/user'
 
   const { success, errorT } = useAppToast()
-  const router = useRouter()
   const roomStore = useRoomStore()
   const linkStore = useLinkStore()
 
@@ -20,7 +18,7 @@
       })
       .catch((err) => {
         console.log(err)
-        errorT('加入房间失败')
+        errorT(err)
       })
   }
   const getRoom = async () => {
@@ -73,7 +71,6 @@
           </template>
         </Column>
       </DataTable>
-      <Button @click="router.push('/')">返回</Button>
     </ScrollPanel>
   </div>
 </template>

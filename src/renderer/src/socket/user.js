@@ -444,12 +444,13 @@ export function NewMessage(douLink, callback) {
 /**
  * 获取历史消息
  * @param {Object} douLink - 复合连接对象
+ * @param {Object} data - 包含 roomId 的对象
  * @returns {Promise<Object>} 包含历史消息的结果
  */
-export function GetMessage(douLink) {
+export function GetMessage(douLink, data) {
   return new Promise((resolve, reject) => {
-    douLink.socket_link.emit('getmessage')
-    douLink.socket_link.once('getmessage', (res) => {
+    douLink.socket_link.emit('getMessages', data)
+    douLink.socket_link.once('getMessages', (res) => {
       if (res.error) {
         reject(res.error)
       }
@@ -491,9 +492,9 @@ export function User_join(douLink, callback) {
       callback(null, res.success)
     }
   }
-  douLink.socket_link.on('user_join', handler)
+  douLink.socket_link.on('user_joined', handler)
   return () => {
-    douLink.socket_link.off('user_join', handler)
+    douLink.socket_link.off('user_joined', handler)
   }
 }
 /**
@@ -509,7 +510,7 @@ export function GetRoomUser(douLink, data) {
       if (res.error) {
         reject(res.error)
       }
-      resolve(JSON.parse(res.success))
+      resolve(res.success)
     })
   })
 }

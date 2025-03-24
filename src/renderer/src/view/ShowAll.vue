@@ -45,6 +45,6 @@
     right: 0px; /* 调整右侧位置 */
     bottom: 0px; /* 调整底部位置 */
     width: 230px; /* 调整宽度 */
-    height: calc(100% - 430px);
+    height: 200px;
   }
 </style>
