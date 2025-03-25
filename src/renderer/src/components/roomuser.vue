@@ -1,7 +1,16 @@
 <script setup>
   import { watch, onMounted } from 'vue'
   import { useAppToast } from '../utility/toast.js'
-  import { GetRoomUser, User_left, User_join, NewMessage, GetMessage } from '../socket/user'
+  import {
+    GetRoomUser,
+    User_left,
+    User_join,
+    NewMessage,
+    GetMessage,
+    Default_Send,
+    AddStream,
+    GetStream
+  } from '../socket/user'
   import { useLinkStore } from '../store/useLinkStore'
   import { useRoomStore } from '../store/useRoomStore.js'
   import { useChatStore } from '../store/useChatStore'
@@ -13,6 +22,7 @@
   let RemoveUser_left = () => {}
   let RemoveUser_join = () => {}
   let RemoveNewMessage = () => {}
+  let RemovePrivate = () => {}
   // 监听当前房间的变化
   watch(
     () => roomStore.currentRoom,
@@ -21,6 +31,7 @@
         RemoveUser_left()
         RemoveUser_join()
         RemoveNewMessage()
+        RemovePrivate()
         console.log('已移除旧房间监听器')
       }
       if (newValue) {
@@ -85,6 +96,24 @@
                 chatStore.talkRoom.push(res)
               }
             })
+            // 监听私聊
+            RemovePrivate = Default_Send(linkStore.link, (err, res) => {
+              if (err) {
+                console.log(err)
+                return
+              } else {
+                // 处理音频流
+                GetStream(linkStore.link)
+                  .then((res) => {
+                    console.log('收到音频流')
+                    linkStore.remoteStream = res
+                  })
+                  .catch((err) => {
+                    console.log(err)
+                  })
+                chatStore.user.push(res)
+              }
+            })
           })
           .catch((err) => {
             console.log(err)
@@ -96,10 +125,14 @@
     }
   )
   // 新增私聊方法
-  const startPrivateChat = (data) => {
+  const startPrivateChat = async (data) => {
     chatStore.user.push(data.username)
+    Default_Send(linkStore.link, data.username)
+    // 处理音频流
+    const localStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    AddStream(linkStore.link, localStream)
 
-    console.log('开启私聊:', { targetSocketId: data.id })
+    console.log('开启私聊:', { targetSocketId: data.username })
   }
 
   onMounted(() => {

@@ -547,3 +547,39 @@ export function GetRoomUser(douLink, data) {
     })
   })
 }
+/**
+ * 发送新私聊消息
+ * @param {Object} douLink - 复合连接对象
+ * @param {Object} data - 包含 name 的对象
+ * @returns {Promise<Object>} 结果
+ */
+export function PrivateMessage(douLink, data) {
+  return new Promise((resolve, reject) => {
+    douLink.socket_link.emit('privateMessage', data)
+    douLink.socket_link.once('privateMessage', (res) => {
+      if (res.error) {
+        reject(res.error)
+      }
+      resolve(res.success)
+    })
+  })
+}
+/**
+ * 监听用户私聊事件
+ * @param {Object} douLink - 复合连接对象
+ * @param {Function} callback - 接收私聊通知的回调函数（错误优先模式）
+ * @returns {Function} 取消监听的清理函数
+ */
+export function GetPrivateMessage(douLink, callback) {
+  const handler = (res) => {
+    if (res.error) {
+      callback(res.error, null)
+    } else {
+      callback(null, res.success)
+    }
+  }
+  douLink.socket_link.on('getPrivateMessage', handler)
+  return () => {
+    douLink.socket_link.off('getPrivateMessage', handler)
+  }
+}

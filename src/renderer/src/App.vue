@@ -1,5 +1,5 @@
 <script setup>
-  import { onMounted, onUnmounted, watch } from 'vue'
+  import { onMounted, onUnmounted, watch, ref } from 'vue'
   import titlebar from './components/titlebar.vue'
   import { useUserStore } from './store/useUserStore.js'
   import { useLinkStore } from './store/useLinkStore.js'
@@ -7,6 +7,7 @@
 
   const userStore = useUserStore()
   const linkStore = useLinkStore()
+  const audioElement = ref(null)
 
   let removeListener = () => {}
   watch(
@@ -27,7 +28,30 @@
       }
     }
   )
-
+  watch(
+    () => linkStore.remoteStream,
+    (newStream, oldStream) => {
+      if (newStream) {
+        // 绑定新流并尝试播放
+        audioElement.value.srcObject = newStream
+        audioElement.value.play().catch((error) => {
+          console.warn('自动播放被阻止，等待用户交互后重试', error)
+          // 添加点击重试逻辑
+          const handleClick = () => {
+            audioElement.value.play()
+            document.removeEventListener('click', handleClick)
+          }
+          document.addEventListener('click', handleClick)
+        })
+      }
+    }
+  )
+  onMounted(() => {
+    audioElement.value = document.createElement('audio')
+    audioElement.value.autoplay = true
+    audioElement.value.hidden = true
+    document.body.appendChild(audioElement.value)
+  })
   onUnmounted(() => {
     userStore.online = []
     removeListener()
