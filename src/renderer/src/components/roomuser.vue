@@ -97,7 +97,7 @@
               }
             })
             // 监听私聊
-            RemovePrivate = Default_Send(linkStore.link, (err, res) => {
+            RemovePrivate = GetPrivateMessage(linkStore.link, (err, res) => {
               if (err) {
                 console.log(err)
                 return

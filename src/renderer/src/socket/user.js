@@ -169,6 +169,10 @@ function icecandidate_get(douLink) {
  */
 export function AddStream(douLink, stream) {
   try {
+    //清空之前的音频流
+    const senders = douLink.rtc_link.getSenders()
+    senders.forEach((sender) => douLink.rtc_link.removeTrack(sender))
+
     stream.getTracks().forEach((track) => {
       douLink.rtc_link.addTrack(track, stream)
     })
