@@ -54,40 +54,70 @@ function iceServers(config, type) {
  *   - protocol: 使用的协议类型
  */
 export async function GetState(pc) {
+  // 添加参数校验
+  if (!(pc instanceof RTCPeerConnection)) {
+    console.log('无效的 WebRTC 连接实例:', pc)
+    return '无效的 WebRTC 连接实例'
+  }
+
   const connectionInfo = {
     iceState: pc.iceConnectionState,
-    connectionState: pc.connectionState,
+    connectionState: pc.connectionState || 'unknown',
     remoteIP: new Set(),
     localIP: new Set(),
-    protocol: new Set()
+    protocol: new Set(),
+    transportState: pc.iceTransport?.state || 'unavailable'
   }
 
-  const stats = await pc.getStats()
+  try {
+    const stats = await pc.getStats()
 
-  stats.forEach((report) => {
-    // 解析本地候选
-    if (report.type === 'local-candidate') {
-      connectionInfo.localIP.add(report.ip || report.address)
-      connectionInfo.protocol.add(report.protocol.toLowerCase())
-    }
-    // 解析远程候选
-    if (report.type === 'remote-candidate') {
-      connectionInfo.remoteIP.add(report.ip || report.address)
-    }
-  })
+    stats.forEach((report) => {
+      // 新增 candidate-pair 类型检测
+      if (report.type === 'candidate-pair' && report.selected) {
+        connectionInfo.currentProtocol = report.protocol.toLowerCase()
+      }
 
-  return {
-    ...connectionInfo,
-    remoteIP: Array.from(connectionInfo.remoteIP).join(', ') || 'N/A',
-    localIP: Array.from(connectionInfo.localIP).join(', ') || 'N/A',
-    protocol: Array.from(connectionInfo.protocol).join('/') || 'N/A'
+      // 优化 IP 地址收集逻辑
+      if (report.type === 'transport') {
+        connectionInfo.localIP.add(report.localAddress)
+        connectionInfo.remoteIP.add(report.remoteAddress)
+      }
+
+      // 保留原有候选收集逻辑
+      if (report.type === 'local-candidate') {
+        connectionInfo.localIP.add(report.ip || report.address)
+        connectionInfo.protocol.add(report.protocol.toLowerCase())
+      }
+      if (report.type === 'remote-candidate') {
+        connectionInfo.remoteIP.add(report.ip || report.address)
+      }
+    })
+
+    return {
+      ...connectionInfo,
+      // 增加实时状态指标
+      isConnected: ['connected', 'completed'].includes(pc.iceConnectionState),
+      remoteIP: Array.from(connectionInfo.remoteIP).join(', ') || 'N/A',
+      localIP: Array.from(connectionInfo.localIP).join(', ') || 'N/A',
+      protocol: Array.from(connectionInfo.protocol).join('/') || 'N/A'
+    }
+  } catch (error) {
+    console.error('获取状态失败:', error)
+    return {
+      ...connectionInfo,
+      error: 'STATS_FETCH_FAILED',
+      message: error.message
+    }
   }
 }
-
-/* ICE 连接状态说明：
-new        - 初始状态，无连接活动
-connecting - 正在建立连接
-connected  - 至少有一个连接成功
-disconnected - 部分连接断开
-failed     - 所有连接尝试失败
-closed     - 连接已完全关闭 */
+/* 
+WebRTC ICE 连接状态说明：
+new         - 初始状态，尚未开始任何网络连接
+checking    - 正在检测候选地址，但未建立有效连接
+connected   - 至少发现一个可用的候选地址对，媒体流可传输
+completed   - ICE 代理已完成候选地址收集，并建立稳定连接
+disconnected- 活动候选地址对失效，但可能自动恢复连接
+failed      - 所有候选地址尝试失败且无法自动恢复
+closed      - ICE 代理已终止，连接不可复用
+*/
