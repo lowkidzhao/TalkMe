@@ -1,5 +1,13 @@
 import { io } from 'socket.io-client'
 import { initialization } from '../utility/webrtc'
+
+let RemoveOfferGet = () => {}
+let RemoveAnswerGet = () => {}
+let RemoveIcecandidateGet = () => {}
+/**
+ * 处理 ICE 候选事件
+ * @param {Object} douLink - 复合连接对象
+ * @param {string} name - 目标用户名
 /**
  * 创建 WebSocket 与 WebRTC 的复合连接
  * @param {string} url - WebSocket 服务器地址 (格式: "ip:port")
@@ -33,9 +41,9 @@ export async function createLink(url, type) {
       console.log('ICE 连接状态:', rtc_link.iceConnectionState)
 
     const douLink = { socket_link, rtc_link }
-    offer_get(douLink)
-    answer_get(douLink)
-    icecandidate_get(douLink)
+    RemoveOfferGet = offer_get(douLink)
+    RemoveAnswerGet = answer_get(douLink)
+    RemoveIcecandidateGet = icecandidate_get(douLink)
     return douLink
   } catch (error) {
     console.log('服务器连接出错： ' + error)
@@ -70,17 +78,19 @@ export async function Default_Send(douLink, name) {
 }
 /**
  * 处理远端发来的 offer 请求
- * @param {Object} douLink - 复合连接对象
+ * @param {Object} douLink - 复合连接对象，包含 socket_link 和 rtc_link
+ * @returns {Function} 返回一个函数，用于移除事件监听器
+ * @description 该函数用于处理远端发来的 offer 请求，包括设置远程 offer、创建并发送 answer，
+ *              以及处理 ICE 候选信息。返回的函数可用于在不需要时移除事件监听器，避免内存泄漏。
  */
 function offer_get(douLink) {
-  douLink.socket_link.on('offer_get', (data) => {
+  const handler = (data) => {
     const offer = new RTCSessionDescription(data.offer)
     douLink.rtc_link
       .setRemoteDescription(offer)
       .then(() => {
         douLink.rtc_link.createAnswer().then((answer) => {
           douLink.rtc_link.setLocalDescription(answer)
-          // 修改 answer.toJSON() 为手动转换
           douLink.socket_link.emit('answer', {
             id: data.id,
             answer: {
@@ -94,17 +104,28 @@ function offer_get(douLink) {
       .catch((error) => {
         console.error('解析offer与发送answer 设置失败:', error)
       })
-  })
+  }
+  douLink.socket_link.on('offer_get', handler)
+  // 返回一个函数用于移除事件监听器
+  return () => {
+    douLink.socket_link.off('offer_get', handler)
+  }
 }
 /**
  * 接收answer
  * @param {Object} douLink - 复合连接对象
+ * @returns {Function} 用于移除事件监听器的函数
  */
 function answer_get(douLink) {
-  douLink.socket_link.on('answer_get', (data) => {
+  const handler = (data) => {
     const answer = new RTCSessionDescription(data.answer)
     douLink.rtc_link.setRemoteDescription(answer)
-  })
+  }
+  douLink.socket_link.on('answer_get', handler)
+  // 返回一个函数用于移除事件监听器
+  return () => {
+    douLink.socket_link.off('answer_get', handler)
+  }
 }
 /**
  * 发送 ICE 候选信息
@@ -125,13 +146,21 @@ function IceCandidate_event(douLink, name, id) {
 }
 /**
  * 接收ice候选
- * @param {Object} douLink - 复合连接对象
+ * @param {Object} douLink - 复合连接对象，包含 socket_link 和 rtc_link
+ * @returns {Function} 返回一个函数，用于移除事件监听器
+ * @description 该函数用于处理远端发来的 ICE 候选信息，将其添加到本地 RTCPeerConnection 中。
+ *              返回的函数可用于在不需要时移除事件监听器，避免内存泄漏。
  */
 function icecandidate_get(douLink) {
-  douLink.socket_link.on('remote-icecandidate', (precandidate) => {
+  const handler = (precandidate) => {
     const candidate = new RTCIceCandidate(precandidate)
     douLink.rtc_link.addIceCandidate(candidate)
-  })
+  }
+  douLink.socket_link.on('remote-icecandidate', handler)
+  // 返回一个函数用于移除事件监听器
+  return () => {
+    douLink.socket_link.off('remote-icecandidate', handler)
+  }
 }
 /**
  * 增加数据流
@@ -199,6 +228,10 @@ export function GetUserInfo(douLink) {
  */
 export function closeLink(douLink) {
   if (douLink) {
+    // 移除事件监听器
+    RemoveOfferGet()
+    RemoveAnswerGet()
+    RemoveIcecandidateGet()
     // 关闭 WebSocket 连接
     if (douLink.socket_link?.connected) {
       douLink.socket_link.disconnect()
