@@ -1,7 +1,7 @@
 <script setup>
   import { ref, computed } from 'vue'
   import { useLinkStore } from '../store/useLinkStore.js'
-  import { useRoomStore } from '../store/usrRoomStore'
+  import { useRoomStore } from '../store/useRoomStore'
 
   const linkStore = useLinkStore()
   const roomStore = useRoomStore()

@@ -1,7 +1,7 @@
 <script setup>
   import { ref, onMounted } from 'vue'
   import { useAppToast } from '../utility/toast.js'
-  import { useRoomStore } from '../store/usrRoomStore'
+  import { useRoomStore } from '../store/useRoomStore'
   import { useLinkStore } from '../store/useLinkStore'
   import { GetRoom, JoinRoom, LeaveRoom } from '../socket/user'
 

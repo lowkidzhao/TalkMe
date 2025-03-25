@@ -3,7 +3,7 @@
   import { useAppToast } from '../utility/toast.js'
   import { GetRoomUser, User_left, User_join, NewMessage, GetMessage } from '../socket/user'
   import { useLinkStore } from '../store/useLinkStore'
-  import { useRoomStore } from '../store/usrRoomStore'
+  import { useRoomStore } from '../store/useRoomStore.js'
   import { useChatStore } from '../store/useChatStore'
 
   const roomStore = useRoomStore()
@@ -96,10 +96,10 @@
     }
   )
   // 新增私聊方法
-  const startPrivateChat = (username) => {
-    chatStore.user.push(username)
-    // 这里可以添加跳转私聊窗口的逻辑
-    console.log('开启私聊:', username)
+  const startPrivateChat = (data) => {
+    chatStore.user.push(data.username)
+
+    console.log('开启私聊:', { targetSocketId: data.id })
   }
 
   onMounted(() => {
@@ -119,8 +119,7 @@
               label="私聊"
               icon="pi pi-comments"
               class="p-button-sm"
-              @click="startPrivateChat(data.username)"
-              :disabled="data.socketId === linkStore.link.id"
+              @click="startPrivateChat(data)"
             />
           </template>
         </Column>

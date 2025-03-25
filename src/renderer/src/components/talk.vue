@@ -3,7 +3,7 @@
   import { useAppToast } from '../utility/toast.js'
   import { useChatStore } from '../store/useChatStore'
   import { useLinkStore } from '../store/useLinkStore'
-  import { useRoomStore } from '../store/usrRoomStore'
+  import { useRoomStore } from '../store/useRoomStore'
   import { Message } from '../socket/user.js'
 
   const chatStore = useChatStore()
