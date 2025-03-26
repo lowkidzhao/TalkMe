@@ -7,7 +7,13 @@ import config from '../../../config/TM_config.json'
 export async function initialization(type) {
   try {
     const iceconfig = iceServers(config, type)
-    const pc = new RTCPeerConnection(config)
+    const pc = new RTCPeerConnection(iceconfig)
+    // 添加数据通道强制触发候选生成
+    const dc = pc.createDataChannel('init-channel')
+    dc.onopen = () => console.log('数据通道已打开')
+    dc.onclose = () => console.warn('数据通道已关闭')
+    dc.onerror = (e) => console.error('数据通道错误:', e)
+
     console.log('ICE 服务器配置:', iceconfig)
     return pc
   } catch (error) {
@@ -34,8 +40,10 @@ export function AddStream(pc, stream) {
  */
 function iceServers(config, type) {
   // 在现有配置基础上添加网络约束
+  console.log(type)
+
   return {
-    iceServers: [config.network.iceServers[type === 'turn' ? 1 : 0]],
+    iceServers: config.network.iceServers,
     iceTransportPolicy: 'all',
     // 新增网络约束
     iceCandidatePoolSize: 5,

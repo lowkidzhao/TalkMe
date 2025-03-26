@@ -134,6 +134,8 @@ function answer_get(douLink) {
  * @param {string|null} id - 目标连接ID（被动响应时使用）
  */
 function IceCandidate_event(douLink, name, id) {
+  console.log(`开始收集 ICE 候选 (方向: ${name ? '主动' : '被动'})`)
+
   douLink.rtc_link.onicecandidate = (event) => {
     if (event.candidate) {
       douLink.socket_link.emit('icecandidate', {
