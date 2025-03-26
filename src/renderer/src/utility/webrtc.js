@@ -35,7 +35,7 @@ export function AddStream(pc, stream) {
 function iceServers(config, type) {
   // 在现有配置基础上添加网络约束
   return {
-    iceServers: [config.network.iceServers[type === 'stun' ? 0 : 1]],
+    iceServers: [config.network.iceServers[type === 'turn' ? 1 : 0]],
     iceTransportPolicy: 'all',
     // 新增网络约束
     iceCandidatePoolSize: 5,

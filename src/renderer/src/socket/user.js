@@ -118,7 +118,7 @@ function offer_get(douLink) {
  */
 function answer_get(douLink) {
   const handler = (data) => {
-    const answer = new RTCSessionDescription(data.answer)
+    const answer = new RTCSessionDescription(data)
     douLink.rtc_link.setRemoteDescription(answer)
   }
   douLink.socket_link.on('answer_get', handler)

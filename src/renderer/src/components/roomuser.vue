@@ -9,7 +9,8 @@
     GetMessage,
     Default_Send,
     AddStream,
-    GetStream
+    GetStream,
+    GetPrivateMessage
   } from '../socket/user'
   import { useLinkStore } from '../store/useLinkStore'
   import { useRoomStore } from '../store/useRoomStore.js'
