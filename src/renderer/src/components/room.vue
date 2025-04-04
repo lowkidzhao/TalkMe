@@ -3,7 +3,7 @@
   import { useAppToast } from '../utility/toast.js'
   import { useRoomStore } from '../store/useRoomStore'
   import { useLinkStore } from '../store/useLinkStore'
-  import { GetRoom, JoinRoom, LeaveRoom } from '../socket/user'
+  import { GetRoom, JoinRoom, LeaveRoom, NewRoom } from '../socket/user'
 
   const { success, errorT } = useAppToast()
   const roomStore = useRoomStore()
@@ -43,12 +43,31 @@
         errorT('退出房间失败')
       })
   }
+  const roomName = ref('')
+  const newRoom = async () => {
+    if (!roomName.value) return // 需要访问 .value
+
+    NewRoom(linkStore.link, { name: roomName.value, password: '' })
+      .then((res) => {
+        success('创建房间成功')
+        getRoom() // 刷新房间列表
+        roomName.value = ''
+      })
+      .catch((err) => {
+        console.log(err)
+        errorT('创建房间失败')
+      })
+  }
   onMounted(() => {
     getRoom()
   })
 </script>
 <template>
   <div class="user-list-container">
+    <div class="flex justify-content-end mb-2">
+      <input v-model="roomName" placeholder="输入房间名称" />
+      <Button icon="pi pi-plus" label="新增房间" @click="newRoom()" severity="success" />
+    </div>
     <ScrollPanel style="width: 230px; height: 100%">
       <DataTable :value="roomStore.rooms" tableStyle="min-width: 50px">
         <Column field="name" header="房间"></Column>
